@@ -5,41 +5,40 @@ import { PDFLoader } from "@langchain/community/document_loaders/fs/pdf";
 import { getPineconClient } from "@/lib/pinecone";
 import { VertexAIEmbeddings } from "@langchain/google-vertexai";
 import { PineconeStore } from "@langchain/pinecone";
+import { getUserSubscriptionPlan } from '@/lib/stripe'
+import { PLANS } from '@/config/stripe'
 
-import dotenv from 'dotenv';
+const f = createUploadthing()
 
+const middleware = async () => {
+  const { getUser } = getKindeServerSession()
+  const user = await getUser()
 
-// Load environment variables
-dotenv.config({ path: '.env' });
+  if (!user || !user.id) throw new Error('Unauthorized')
 
-const f = createUploadthing();
+  const subscriptionPlan = await getUserSubscriptionPlan()
 
-export const ourFileRouter = {
-  pdfUploader: f({
-    pdf: {
-      maxFileSize: "4MB",
-      maxFileCount: 1,
-    },
-  })
-    .middleware(async () => {
-        const { getUser } = getKindeServerSession()
-        const user = await getUser()
-      
-        if (!user || !user.id) throw new Error('Unauthorized')
-      
-        // const subscriptionPlan = await getUserSubscriptionPlan()
-      
-        return { userId: user.id }
-    })
-    .onUploadComplete(async ({ metadata, file }) => {
+  return { subscriptionPlan, userId: user.id }
+}
 
-        const isFileExist = await db.file.findFirst({
-            where: {
-              key: file.key,
-            },
-          })
-        
-          if (isFileExist) return
+  const onUploadComplete = async ({
+      metadata,
+      file,
+    }: {
+      metadata: Awaited<ReturnType<typeof middleware>>
+      file: {
+        key: string
+        name: string
+        ufsUrl: string
+      }
+    }) => {
+      const isFileExist = await db.file.findFirst({
+        where: {
+          key: file.key,
+        },
+      })
+
+      if (isFileExist) return
         
           const createdFile = await db.file.create({
             data: {
@@ -51,7 +50,6 @@ export const ourFileRouter = {
             },
           })
 
-          console.log("hehehehehehehehehehehe", process.env.GOOGLE_APPLICATION_CREDENTIALS)
 
 
           try {
@@ -59,7 +57,34 @@ export const ourFileRouter = {
               const blob = await response.blob()
               const loader = new PDFLoader(blob)
               const pageLevelDocs = await loader.load()
-        
+              //strip check
+              const pagesAmt = pageLevelDocs.length
+
+              const { subscriptionPlan } = metadata
+              const { isSubscribed } = subscriptionPlan
+
+              const isProExceeded =
+                pagesAmt >
+                PLANS.find((plan) => plan.name === 'Pro')!.pagesPerPdf
+              const isFreeExceeded =
+                pagesAmt >
+                PLANS.find((plan) => plan.name === 'Free')!
+                  .pagesPerPdf
+
+              if (
+                (isSubscribed && isProExceeded) ||
+                (!isSubscribed && isFreeExceeded)
+              ) {
+                await db.file.update({
+                  data: {
+                    uploadStatus: 'FAILED',
+                  },
+                  where: {
+                    id: createdFile.id,
+                  },
+                })
+              }
+
 
               // vectorize and index entire document
               const pinecone = await getPineconClient()
@@ -90,18 +115,26 @@ export const ourFileRouter = {
 
               console.log('pdf embeddings and processing completed')
               
-          } catch (error) {
-            console.log("error in processing:", error)
-            await db.file.update({
-              data: {
-                uploadStatus: 'FAILED',
-              },
-              where: {
-                id: createdFile.id,
-              },
-            })
-          }
-    }),
-} satisfies FileRouter;
+            } catch (err) {
+              await db.file.update({
+                data: {
+                  uploadStatus: 'FAILED',
+                },
+                where: {
+                  id: createdFile.id,
+                },
+              })
+            }
+          }          
 
-export type OurFileRouter = typeof ourFileRouter;
+
+export const ourFileRouter = {
+  freePlanUploader: f({ pdf: { maxFileSize: '4MB' } })
+    .middleware(middleware)
+    .onUploadComplete(onUploadComplete),
+  proPlanUploader: f({ pdf: { maxFileSize: '32MB' } })
+    .middleware(middleware)
+    .onUploadComplete(onUploadComplete),
+} satisfies FileRouter
+
+export type OurFileRouter = typeof ourFileRouter

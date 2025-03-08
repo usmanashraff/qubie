@@ -1,3 +1,4 @@
+"use client"
 import { cn } from '@/lib/utils'
 import { ExtendedMessage } from '@/types/message'
 import { Icons } from '../Icons'
@@ -5,10 +6,12 @@ import ReactMarkdown from 'react-markdown'
 import { format } from 'date-fns'
 import { forwardRef } from 'react'
 
+
 interface MessageProps {
   message: ExtendedMessage
-  isNextMessageSamePerson: boolean
+  isNextMessageSamePerson: boolean,
 }
+
 
 const Message = forwardRef<HTMLDivElement, MessageProps>(
   ({ message, isNextMessageSamePerson }, ref) => {
@@ -44,29 +47,25 @@ const Message = forwardRef<HTMLDivElement, MessageProps>(
               'order-2 items-start': !message.isUserMessage,
             }
           )}>
-          <div
+              <div
             className={cn(
-              'px-4 py-2 rounded-lg inline-block',
+              'px-4 py-2 rounded-lg inline-block streaming-text',
               {
-                'bg-blue-600 text-white':
-                  message.isUserMessage,
-                'bg-gray-200 text-gray-900':
-                  !message.isUserMessage,
-                'rounded-br-none':
-                  !isNextMessageSamePerson &&
-                  message.isUserMessage,
-                'rounded-bl-none':
-                  !isNextMessageSamePerson &&
-                  !message.isUserMessage,
+                'bg-blue-600 text-white': message.isUserMessage,
+                'bg-gray-200 text-gray-900': !message.isUserMessage,
+                'rounded-br-none': !isNextMessageSamePerson && message.isUserMessage,
+                'rounded-bl-none': !isNextMessageSamePerson && !message.isUserMessage,
               }
             )}>
-            {typeof message.text === 'string' ? (
-              <div className={cn('prose', {
+              {typeof message.text === 'string' ? (
+              <div 
+                className={cn('prose', {
                   'text-zinc-50': message.isUserMessage,
-                })}>
-                      <ReactMarkdown>
-                    {message.text}
-                    </ReactMarkdown>
+                })}
+              >
+                <ReactMarkdown>
+                  {message.text}
+                </ReactMarkdown>
                 </div>
               
             ) : (

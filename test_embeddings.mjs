@@ -1,3 +1,6 @@
+import { ReadableStream } from 'stream/web';
+global.ReadableStream = ReadableStream;
+
 import dotenv from 'dotenv';
 import { VertexAIEmbeddings } from '@langchain/google-vertexai';
 

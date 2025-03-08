@@ -16,7 +16,11 @@ import { useRouter } from 'next/navigation'
 import { useUploadThing } from '@/lib/uploadthing'
 import { toast } from "sonner"
 
-const UploadDropzone = () => {
+const UploadDropzone = ({
+  isSubscribed,
+}: {
+  isSubscribed: boolean
+}) => {
   const router = useRouter()
 
   const [isUploading, setIsUploading] =
@@ -24,8 +28,9 @@ const UploadDropzone = () => {
   const [uploadProgress, setUploadProgress] =
     useState<number>(0)
 
-  const { startUpload } = useUploadThing('pdfUploader')
-
+    const { startUpload } = useUploadThing(
+      isSubscribed ? 'proPlanUploader' : 'freePlanUploader'
+    );
   const { mutate: startPolling } = trpc.getFile.useMutation(
     {
       onSuccess: (file) => {
@@ -101,7 +106,7 @@ const UploadDropzone = () => {
                   or drag and drop
                 </p>
                 <p className='text-xs text-zinc-500'>
-                  PDF (up to : 4MB)
+                  PDF (up to {isSubscribed ? "32" : "4"}MB)
                 </p>
               </div>
 
@@ -150,6 +155,9 @@ const UploadDropzone = () => {
 }
 
 const UploadButton = ({
+  isSubscribed
+}: {
+  isSubscribed: boolean
 }) => {
   const [isOpen, setIsOpen] = useState<boolean>(false)
 
@@ -168,7 +176,7 @@ const UploadButton = ({
       </DialogTrigger>
 
       <DialogContent>
-        <UploadDropzone />
+        <UploadDropzone isSubscribed={isSubscribed} />
       </DialogContent>
     </Dialog>
   )

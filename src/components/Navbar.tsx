@@ -7,8 +7,8 @@ import {
   getKindeServerSession,
 } from '@kinde-oss/kinde-auth-nextjs/server'
 import { ArrowRight } from 'lucide-react'
-import MobileNav from './MobileNav'
 import UserAccountNav from './UserAccountNav'
+import MobileNav from './MobileNav'
 
 const Navbar = async() => {
   const { getUser } = getKindeServerSession()
@@ -62,6 +62,7 @@ const Navbar = async() => {
                   })}>
                   Dashboard
                 </Link>
+               
 
                 <UserAccountNav
                   name={
