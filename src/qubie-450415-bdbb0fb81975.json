@@ -1,0 +1,13 @@
+{
+  "type": "service_account",
+  "project_id": "qubie-450415",
+  "private_key_id": "bdbb0fb81975612fa17c51c6ca92eb24d75ad82e",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvAIBADANBgkqhkiG9w0BAQEFAASCBKYwggSiAgEAAoIBAQDOAOagykSjXgsg\n3y3fCnGXnLv4EG4h8g1F+EtKXGVNhOI+ltgLzI3ubgoQayjwMntJkrA04d93fNk/\n6IPF+HARVnThjuPGOiy27/sEmN3FGW3sbZ9LSafA6Q+BU5irYuhRFMlNQ/5apwgn\nzVEsA/EgeCT0F6Ot9pZfykfVpWTJMnrbH9CN49x09+7X0fGROeWuwy65Jd20txWM\nSk5r8lZjDVXOJKOe1TuPNab4g96HrNIoOtjCoQObNDylEm2zaLwJM+8ORItqVfZp\nPMmWTl/VXMUsKXQJW5wo5E1M2AnJuG/cfgc1bdZd5WYvAvQwtBu95/C2xbmX1fGN\nkg3IhBe9AgMBAAECggEAAi5Awr15ZghSElZCeEy2QJ5cYAcef1X+XXoAJAif2ub3\n9SUoItHWw8oe6acUvxwtsWzv2BN3B98GtrY5pOAZIZnacWPPlfLaM9KNA/KxUEuR\nXhIYAFZGhBSDgUE3CcNphag0bFC2sdN4UuGJxS9Cf28+JuZUKXyFgXyU75ZJX5bY\nGHtXpJQRIIwExnxvE0ppx0AJWFGY+8Gel0d12cJudvfz+3PYoWj24c3qH0r+zWt8\nd6ERjEpEzUuHxp2xKL2UDzxUf2vBC0JbrS+jbLh0oXKEw1o2DCV2M73z+Hme3sNs\nVJX9jE8JPETiMM65wLuCs91MZsfrs5Fx30jZaqJs8QKBgQDr54lAkdXaxSYcqbyo\nPJU7mllfdoO3NCjLNGXTB8XwOr/Ad+gIpflnsDHIYHOgBN23ikHcQYgl91Zjoyxx\nuAxHr5MRbZlCtg/4/68hc+V7EU57H2I5KUUTV1ukicl9z4BiNppBRLDSbWq3dGEq\nUCL5x8mkAU+wFUuz7W55/W8aTQKBgQDfjU2jHCxfvfkAZYqzbhvry5o0+cZ6gXC7\n2dtktVfznfR8XxBiycZo2gQsYNptCZNGHhkGVc5iXhfwwSYuvtkpO6/ospC6ckHF\nH0Qu3/CmzuLx/yJpg+y1NXpfuYVsvylZwLWBYPpwaFz9/tZZnye2WWGjTe1rBlCD\nSJojtnnLMQKBgHPer/21I/NmroeZn36K80npUEihb6TGy9qzi+gRg1mxoYmp26CT\n1WLmmi0vottQSI7kK+FBltv/FsGt3iClI/L5/CStToAD6OiGvcCSqn6+S2wSSC6H\nZNRRLkQtIXjYONkEtNOmJ6vT7nzZfvhHkEZbqWES+88jRqHD12W346BpAoGAI6cR\nfrX7jblqgNmw6TTiVxS9nz1GnjsOk6cHCmSxhjTmzP8MSfUMI6TBjaJUs5cXWdNr\nAkulAqMnBkqHoGTnlV/jiiUQV+vo+VsnMKKearwMDbQ29MUJd0z0G1gnI1TJb3sA\nd4XT6yF50zhVTy3G05olrDm9Z5g2NvnZO2Daw8ECgYB9uaQFn448B1OWq/qMW12R\n2BL8ld3pq5LGTvOFT6AafmLfyRXC/snP/EvP5SCVTdwfWS8YG4aLgpocArOemwnn\nyKExpupTFVQ5aK2p0fUUtlJxBtiZMzDwBulpwSzmpoSx0kub/KZDFdvbbVGAo+4E\nGp7AZ4+uFDp9gUlh/6c80g==\n-----END PRIVATE KEY-----\n",
+  "client_email": "qubie-vertex@qubie-450415.iam.gserviceaccount.com",
+  "client_id": "116824332625261130313",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/qubie-vertex%40qubie-450415.iam.gserviceaccount.com",
+  "universe_domain": "googleapis.com"
+}
