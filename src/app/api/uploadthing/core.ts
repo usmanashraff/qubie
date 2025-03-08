@@ -116,6 +116,7 @@ const middleware = async () => {
               console.log('pdf embeddings and processing completed')
               
             } catch (err) {
+              console.log("error in embedding document", err);
               await db.file.update({
                 data: {
                   uploadStatus: 'FAILED',
