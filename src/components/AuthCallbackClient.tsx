@@ -1,10 +1,8 @@
 "use client"
-export const dynamic = 'force-dynamic'; // Optional: Forces dynamic rendering
 import { useRouter, useSearchParams } from 'next/navigation'
 import { trpc } from '../../src/app/_trpc/client'
 import { Loader2 } from 'lucide-react'
 import { useEffect } from 'react'
-import { Suspense } from 'react';
 
 
 const AuthCallbackClient = () => {
@@ -33,7 +31,6 @@ const AuthCallbackClient = () => {
   
 
   return (
-    <Suspense fallback={<div>Loading authentication...</div>}>
     <div className='w-full mt-24 flex justify-center'>
       <div className='flex flex-col items-center gap-2'>
         <Loader2 className='h-8 w-8 animate-spin text-zinc-800' />
@@ -43,7 +40,6 @@ const AuthCallbackClient = () => {
         <p>You will be redirected automatically.</p>
       </div>
     </div>
-    </Suspense>
   )
 }
 
