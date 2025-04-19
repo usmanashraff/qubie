@@ -98,7 +98,9 @@ const PdfRenderer = ({ files_urls }: any) => {
               key={url}
               onClick={() => setCurrentPdf(index)}
               variant='secondary'
-              className='text-sm shadow-sm'
+              className={`text-sm shadow-sm ${
+                currentPdf === index ? 'bg-blue-100' : 'bg-white'
+              }`}
               
               >
               Open File {index + 1}
