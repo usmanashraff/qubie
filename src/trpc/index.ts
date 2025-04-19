@@ -46,7 +46,7 @@ export const appRouter = router({
   getUserFiles: privateProcedure.query(async ({ctx}) => {
     const { userId } = ctx
 
-    return await db.file.findMany({
+    return await db.fileGroup.findMany({
       where: {
         userId,
       },
@@ -116,27 +116,27 @@ export const appRouter = router({
       z.object({
         limit: z.number().min(1).max(100).nullish(),
         cursor: z.string().nullish(),
-        fileId: z.string(),
+        groupId: z.string(),
       })
     )
     .query(async ({ ctx, input }) => {
       const { userId } = ctx
-      const { fileId, cursor } = input
+      const { groupId, cursor } = input
       const limit = input.limit ?? INFINITE_QUERY_LIMIT
 
-      const file = await db.file.findFirst({
+      const fileGroup = await db.fileGroup.findFirst({
         where: {
-          id: fileId,
+          id: groupId,
           userId,
         },
       })
 
-      if (!file) throw new TRPCError({ code: 'NOT_FOUND' })
+      if (!fileGroup) throw new TRPCError({ code: 'NOT_FOUND' })
 
       const messages = await db.message.findMany({
         take: limit + 1,
         where: {
-          fileId,
+          fileGroupId: groupId,
         },
         orderBy: {
           createdAt: 'desc',
@@ -163,60 +163,124 @@ export const appRouter = router({
     }),
 
   getFileUploadStatus: privateProcedure
-    .input(z.object({ fileId: z.string() }))
+    .input(z.object({ groupId: z.string() }))
     .query(async ({ input, ctx }) => {
-      const file = await db.file.findFirst({
+      const fileGroup = await db.fileGroup.findFirst({
         where: {
-          id: input.fileId,
+          id: input.groupId,
           userId: ctx.userId,
         },
       })
 
-      if (!file) return { status: 'PENDING' as const }
+      if (!fileGroup) return { status: 'PENDING' as const }
 
-      return { status: file.uploadStatus }
+      return { status: fileGroup.uploadStatus }
     }),
 
-  getFile: privateProcedure
-    .input(z.object({ key: z.string() }))
+    getFile: privateProcedure
+    .input(z.object({ key: z.string(), fileGroupId: z.string() }))
     .mutation(async ({ ctx, input }) => {
-      const { userId } = ctx
-
+      const { userId } = ctx;
+  
+      // Step 1: Find the file
       const file = await db.file.findFirst({
         where: {
           key: input.key,
           userId,
         },
-      })
-
-      if (!file) throw new TRPCError({ code: 'NOT_FOUND' })
-
-      return file
+      });
+  
+      if (!file) {
+        throw new TRPCError({ code: 'NOT_FOUND' });
+      }
+  
+      // Step 2: Check if the file group exists
+      let fileGroup = await db.fileGroup.findUnique({
+        where: {
+          id: input.fileGroupId,
+        },
+      });
+  
+      // Step 3: If not, create it
+      if (!fileGroup) {
+        fileGroup = await db.fileGroup.create({
+          data: {
+            id: input.fileGroupId,
+            userId,
+            uploadStatus: "PENDING",
+            name: new Date().toISOString(), // Uses ISO date string as name
+          },
+        });
+      }
+  
+      // Step 4: Link the file to the group (only if not already linked)
+      if (file.fileGroupId !== input.fileGroupId) {
+        await db.file.update({
+          where: { id: file.id },
+          data: {
+            fileGroupId: input.fileGroupId,
+          },
+        });
+      }
+  
+      return {
+        file,
+      };
     }),
-
+  
 
   deleteFile: privateProcedure
     .input(z.object({ id: z.string() }))
     .mutation(async ({ ctx, input }) => {
       const { userId } = ctx
 
-      const file = await db.file.findFirst({
+
+      const fileGroup = await db.fileGroup.findFirst({
         where: {
           id: input.id,
           userId,
         },
       })
 
-      if (!file) throw new TRPCError({ code: 'NOT_FOUND' })
+      if (!fileGroup) throw new TRPCError({ code: 'NOT_FOUND' })
 
-      await db.file.delete({
+       
+        // delete all files with that filegroup
+        await db.file.deleteMany({
+          where: {
+            fileGroupId: input.id, 
+          },
+        })
+         //delete all messages with that filegroup
+         await db.message.deleteMany({
+          where: {
+            fileGroupId: input.id, 
+          },
+        })
+      //then delete filegroup itself 
+      await db.fileGroup.delete({
         where: {
           id: input.id,
         },
       })
 
-      return file
+      return fileGroup;
     }),
+
+    // trpc/index.ts
+    getFileGroup: privateProcedure
+    .input(z.object({ fileGroupId: z.string() }))
+    .query(async ({ ctx, input }) => {
+      const { userId } = ctx;
+      const fileGroup = await db.fileGroup.findFirst({
+        where: {
+          id: input.fileGroupId,
+          userId,
+        },
+      });
+      return { exists: !!fileGroup };
+    }),
+
 })
 
 export type AppRouter = typeof appRouter

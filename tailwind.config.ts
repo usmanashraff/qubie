@@ -3,7 +3,7 @@ import tailwindcssAnimate from "tailwindcss-animate";
 import typography from "@tailwindcss/typography";
 
 module.exports = {
-	darkMode: ["class"],
+	darkMode: 'class', // ✅ Important
 	content: [
 	  './pages/**/*.{ts,tsx}',
 	  './components/**/*.{ts,tsx}',

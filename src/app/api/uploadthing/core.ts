@@ -5,137 +5,114 @@ import { PDFLoader } from "@langchain/community/document_loaders/fs/pdf";
 import { getPineconClient } from "@/lib/pinecone";
 import { VertexAIEmbeddings } from "@langchain/google-vertexai";
 import { PineconeStore } from "@langchain/pinecone";
-import { getUserSubscriptionPlan } from '@/lib/stripe'
-import { PLANS } from '@/config/stripe'
+import { getUserSubscriptionPlan } from "@/lib/stripe";
+import { PLANS } from "@/config/stripe";
 
-const f = createUploadthing()
+const f = createUploadthing();
 
 const middleware = async () => {
-  const { getUser } = getKindeServerSession()
-  const user = await getUser()
+  const { getUser } = getKindeServerSession();
+  const user = await getUser();
+  
+  if (!user || !user.id) throw new Error("Unauthorized");
 
-  if (!user || !user.id) throw new Error('Unauthorized')
+  const subscriptionPlan = await getUserSubscriptionPlan();
 
-  const subscriptionPlan = await getUserSubscriptionPlan()
-
-  return { subscriptionPlan, userId: user.id }
-}
-
-  const onUploadComplete = async ({
-      metadata,
-      file,
-    }: {
-      metadata: Awaited<ReturnType<typeof middleware>>
-      file: {
-        key: string
-        name: string
-        ufsUrl: string
-      }
-    }) => {
-      const isFileExist = await db.file.findFirst({
-        where: {
-          key: file.key,
-        },
-      })
-
-      if (isFileExist) return
-        
-          const createdFile = await db.file.create({
-            data: {
-              key: file.key,
-              name: file.name,
-              userId: metadata.userId,
-              url: file.ufsUrl,
-              uploadStatus: 'PROCESSING',
-            },
-          })
+  return {
+    subscriptionPlan,
+    userId: user.id,
+  };
+};
 
 
+// onUploadComplete is called for each file individually
+const onUploadComplete = async ({
+  metadata,
+  file,
+}: {
+  metadata: Awaited<ReturnType<typeof middleware>>;
+  file: {
+    key: string;
+    name: string;
+    ufsUrl: string;
+  };
+}) => {
+  const isFileExist = await db.file.findFirst({
+    where: { key: file.key },
+  });
 
-          try {
-              const response = await fetch(file.ufsUrl)
-              const blob = await response.blob()
-              const loader = new PDFLoader(blob)
-              const pageLevelDocs = await loader.load()
-              //strip check
-              const pagesAmt = pageLevelDocs.length
+  // Avoid reprocessing same file
+  if (isFileExist) return;
 
-              const { subscriptionPlan } = metadata
-              const { isSubscribed } = subscriptionPlan
+  const createdFile = await db.file.create({
+    data: {
+      key: file.key,
+      name: file.name,
+      userId: metadata.userId,
+      url: file.ufsUrl,
+      uploadStatus: "PROCESSING",
+    },
+  });
 
-              const isProExceeded =
-                pagesAmt >
-                PLANS.find((plan) => plan.name === 'Pro')!.pagesPerPdf
-              const isFreeExceeded =
-                pagesAmt >
-                PLANS.find((plan) => plan.name === 'Free')!
-                  .pagesPerPdf
+  try {
+    const response = await fetch(file.ufsUrl);
+    const blob = await response.blob();
+    const loader = new PDFLoader(blob);
+    const pageLevelDocs = await loader.load();
 
-              if (
-                (isSubscribed && isProExceeded) ||
-                (!isSubscribed && isFreeExceeded)
-              ) {
-                await db.file.update({
-                  data: {
-                    uploadStatus: 'FAILED',
-                  },
-                  where: {
-                    id: createdFile.id,
-                  },
-                })
-              }
+    const pagesAmt = pageLevelDocs.length;
+    const { isSubscribed } = metadata.subscriptionPlan;
 
+    const maxPages = isSubscribed
+      ? PLANS.find((p) => p.name === "Pro")!.pagesPerPdf
+      : PLANS.find((p) => p.name === "Free")!.pagesPerPdf;
 
-              // vectorize and index entire document
-              const pinecone = await getPineconClient()
-              const pineconeIndex = pinecone.Index('qubie')
+    // Exceed check
+    if (pagesAmt > maxPages) {
+      await db.file.update({
+        where: { id: createdFile.id },
+        data: { uploadStatus: "FAILED" },
+      });
+      return;
+    }
 
-              // Initialize Google Vertex AI Embeddings
-                const embeddings = new VertexAIEmbeddings({
-                  model: "textembedding-gecko@latest",
-                });
+    // Vectorize and store in Pinecone
+    const pinecone = await getPineconClient();
+    const pineconeIndex = pinecone.Index("qubie");
 
-              await PineconeStore.fromDocuments(
-                pageLevelDocs,
-                embeddings,
-                {
-                  pineconeIndex,
-                  namespace: createdFile.id,
-                }
-              )
+    const embeddings = new VertexAIEmbeddings({
+      model: "textembedding-gecko@latest",
+    });
 
-              await db.file.update({
-                data: {
-                  uploadStatus: 'SUCCESS',
-                },
-                where: {
-                  id: createdFile.id,
-                },
-              })
+    await PineconeStore.fromDocuments(pageLevelDocs, embeddings, {
+      pineconeIndex,
+      namespace: createdFile.id,
+    });
 
-              console.log('pdf embeddings and processing completed')
-              
-            } catch (err) {
-              console.log("err", err);
-              await db.file.update({
-                data: {
-                  uploadStatus: 'FAILED',
-                },
-                where: {
-                  id: createdFile.id,
-                },
-              })
-            }
-          }          
+    await db.file.update({
+      where: { id: createdFile.id },
+      data: { uploadStatus: "SUCCESS" },
+    });
 
+    console.log("✅ PDF embeddings completed:", file.name);
+  } catch (err) {
+    console.error("❌ Error processing PDF:", err);
+    await db.file.update({
+      where: { id: createdFile.id },
+      data: { uploadStatus: "FAILED" },
+    });
+  }
+};
 
+// Define routers (same logic, different file sizes)
 export const ourFileRouter = {
-  freePlanUploader: f({ pdf: { maxFileSize: '4MB' } })
+  freePlanUploader: f({ pdf: { maxFileSize: "4MB", maxFileCount: 10 } })
     .middleware(middleware)
     .onUploadComplete(onUploadComplete),
-  proPlanUploader: f({ pdf: { maxFileSize: '32MB' } })
-    .middleware(middleware)
-    .onUploadComplete(onUploadComplete),
-} satisfies FileRouter
 
-export type OurFileRouter = typeof ourFileRouter
+  proPlanUploader: f({ pdf: { maxFileSize: "32MB", maxFileCount: 10 } })
+    .middleware(middleware)
+    .onUploadComplete(onUploadComplete),
+} satisfies FileRouter;
+
+export type OurFileRouter = typeof ourFileRouter;

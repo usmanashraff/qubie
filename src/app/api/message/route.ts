@@ -19,17 +19,17 @@ export const POST = async (req: NextRequest) => {
   if (!userId)
     return new Response('Unauthorized', { status: 401 })
 
-  const { fileId, message } =
+  const { groupId, message } =
     SendMessageValidator.parse(body)
 
-  const file = await db.file.findFirst({
+  const fileGroup = await db.fileGroup.findFirst({
     where: {
-      id: fileId,
+      id: groupId,
       userId,
     },
   })
 
-  if (!file)
+  if (!fileGroup)
     return new Response('Not found', { status: 404 })
 
   await db.message.create({
@@ -37,34 +37,46 @@ export const POST = async (req: NextRequest) => {
       text: message,
       isUserMessage: true,
       userId,
-      fileId,
+      fileGroupId: groupId,
     },
   })
 
-   // Initialize Google Vertex AI Embeddings
-   const embeddings = new VertexAIEmbeddings({
-   model: "textembedding-gecko@latest",
+  // Step 1: Get all files for the given fileGroupId
+    const files = await db.file.findMany({
+      where: {
+        fileGroupId: groupId,
+      },
+    })
+
+ // Step 2: Initialize embeddings and Pinecone client
+  const embeddings = new VertexAIEmbeddings({
+    model: "textembedding-gecko@latest",
   })
 
   const pc = await getPineconClient()
   const pineconeIndex = pc.index('qubie')
 
-  const vectorStore = await PineconeStore.fromExistingIndex(
-    embeddings,
-    {
-      pineconeIndex,
-      namespace: file.id,
-    }
-  )
+  // Step 3: Loop through files and search in their namespaces
+  const allResults = await Promise.all(
+    files.map(async (file) => {
+      const vectorStore = await PineconeStore.fromExistingIndex(
+        embeddings,
+        {
+          pineconeIndex,
+          namespace: file.id, // Each file has its own namespace
+        }
+      )
 
-  const results = await vectorStore.similaritySearch(
-    message,
-    4
-  )
+      // Step 4: Perform similarity search in each namespace
+      return vectorStore.similaritySearch(message, 4)
+    })
+)
+// Step 5: Flatten results into a single array
+  const flattenedResults = allResults.flat()
 
   const prevMessages = await db.message.findMany({
     where: {
-      fileId,
+      fileGroupId: groupId,
     },
     orderBy: {
       createdAt: 'asc',
@@ -83,11 +95,11 @@ export const POST = async (req: NextRequest) => {
   const messageStream = await model.stream([
     [
       "system",
-      "Use the following pieces of context (or previous conversation if needed) to answer the user's question in markdown format. If you don't know the answer, just say that you don't know, don't try to make up an answer.",
+      "Use the following pieces of context (or previous conversation if needed) to answer the user's question in markdown format. If you don't know the answer, just say that you don't know, don't try to make up an answer. keep the answer brief and meaningful. note user can pass different context in the same prompt",
     ],
     [
       "human",
-      `Use the following pieces of context (or previous conversation if needed) to answer the user's question in markdown format. \nIf you don't know the answer, just say that you don't know, don't try to make up an answer.
+      `Use the following pieces of context (or previous conversation if needed) to answer the user's question in markdown format. \nIf you don't know the answer, just say that you don't know, don't try to make up an answer. keep the answer brief and meaningful. note user can pass different context in the same prompt
         
   \n----------------\n
   
@@ -101,7 +113,7 @@ export const POST = async (req: NextRequest) => {
   \n----------------\n
   
   CONTEXT:
-  ${results.map((r) => r.pageContent).join('\n\n')}
+  ${flattenedResults.map((r) => r.pageContent).join('\n\n')}
   
   USER INPUT: ${message}`,
     ],
@@ -143,7 +155,7 @@ const stream = new ReadableStream({
         data: {
           text: fullResponse,
           isUserMessage: false,
-          fileId,
+          fileGroupId: groupId,
           userId,
         },
       });

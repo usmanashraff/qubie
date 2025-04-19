@@ -10,14 +10,14 @@ import { ChatContextProvider } from './ChatContext'
 // import { PLANS } from '@/config/stripe'
 
 interface ChatWrapperProps {
-  fileId: string
+  groupId: string
 }
 
 const ChatWrapper = ({
-  fileId,
+  groupId,
 }: ChatWrapperProps) => {
   const { data, isLoading } = trpc.getFileUploadStatus.useQuery(
-    { fileId },
+    { groupId },
     {
       refetchInterval: (data) => {
         if (!data || !("status" in data)) return false; // Prevent TypeScript errors
@@ -105,10 +105,10 @@ const ChatWrapper = ({
     )
 
   return (
-    <ChatContextProvider fileId={fileId}>
+    <ChatContextProvider groupId={groupId}>
       <div className='relative min-h-full bg-zinc-50 flex divide-y divide-zinc-200 flex-col justify-between gap-2'>
         <div className='flex-1 justify-between flex flex-col mb-28'>
-          <Messages fileId={fileId} />
+          <Messages groupId={groupId} />
         </div>
 
         <ChatInput />

@@ -6,6 +6,7 @@ import Providers from "@/components/Providers";
 import 'react-loading-skeleton/dist/skeleton.css'
 import { Toaster } from "@/components/ui/sonner";
 import 'simplebar-react/dist/simplebar.min.css';
+import { Providerss } from './providers'
 
 
 const geistSans = localFont({
@@ -30,16 +31,20 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
+
     <html lang="en">
       <Providers>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
+        <Providerss>
         <Navbar />
         <Toaster />
         {children}
+        </Providerss>
       </body>
       </Providers>
     </html>
+
   );
 }

@@ -26,12 +26,12 @@ import { INFINITE_QUERY_LIMIT } from '@/config/infinite-query'
   })
   
   interface Props {
-    fileId: string
+    groupId: string
     children: ReactNode
   }
   
   export const ChatContextProvider = ({
-    fileId,
+    groupId,
     children,
   }: Props) => {
     const [message, setMessage] = useState<string>('')
@@ -51,7 +51,7 @@ import { INFINITE_QUERY_LIMIT } from '@/config/infinite-query'
         const response = await fetch('/api/message', {
           method: 'POST',
           body: JSON.stringify({
-            fileId,
+            groupId,
             message,
           }),
         })
@@ -75,7 +75,7 @@ import { INFINITE_QUERY_LIMIT } from '@/config/infinite-query'
   
         // step 3
         utils.getFileMessages.setInfiniteData(
-          { fileId, limit: INFINITE_QUERY_LIMIT },
+          { groupId, limit: INFINITE_QUERY_LIMIT },
           (old) => {
             if (!old) {
               return {
@@ -143,7 +143,7 @@ import { INFINITE_QUERY_LIMIT } from '@/config/infinite-query'
   
           // append chunk to the actual message
           utils.getFileMessages.setInfiniteData(
-            { fileId, limit: INFINITE_QUERY_LIMIT },
+            { groupId, limit: INFINITE_QUERY_LIMIT },
             (old) => {
               if (!old) return { pages: [], pageParams: [] }
   
@@ -200,14 +200,14 @@ import { INFINITE_QUERY_LIMIT } from '@/config/infinite-query'
       onError: (_, __, context) => {
         setMessage(backupMessage.current)
         utils.getFileMessages.setData(
-          { fileId },
+          { groupId },
           { messages: context?.previousMessages ?? [] }
         )
       },
       onSettled: async () => {
         setIsLoading(false)
   
-        await utils.getFileMessages.invalidate({ fileId })
+        await utils.getFileMessages.invalidate({ groupId })
       },
     })
   

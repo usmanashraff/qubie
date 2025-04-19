@@ -1,6 +1,6 @@
 import {z} from "zod"
 
 export const SendMessageValidator = z.object({
-    fileId: z.string(),
+    groupId: z.string(),
     message: z.string()
 })

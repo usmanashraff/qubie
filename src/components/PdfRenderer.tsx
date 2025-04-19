@@ -34,11 +34,11 @@ import PdfFullscreen from './PdfFullscreen'
 
 pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js`
 
-interface PdfRendererProps {
-  url: string
-}
+// interface PdfRendererProps {
+//   url: string
+// }
 
-const PdfRenderer = ({ url }: PdfRendererProps) => {
+const PdfRenderer = ({ files_urls }: any) => {
 
   const [numPages, setNumPages] = useState<number>()
   const [currPage, setCurrPage] = useState<number>(1)
@@ -47,6 +47,8 @@ const PdfRenderer = ({ url }: PdfRendererProps) => {
   const [renderedScale, setRenderedScale] = useState<
     number | null
   >(null)
+  const [currentPdf, setCurrentPdf] = useState<number>(0)
+
 
   const isLoading = renderedScale !== scale
 
@@ -86,9 +88,23 @@ const PdfRenderer = ({ url }: PdfRendererProps) => {
   }
 
   return (
-    <div className='w-full bg-white rounded-md shadow flex flex-col items-center'>
+    <div className='w-full  rounded-md shadow flex flex-col items-center'>
+     
       <div className='h-14 w-full border-b border-zinc-200 flex items-center justify-between px-2'>
         <div className='flex items-center gap-1.5'>
+            <div className="w-full flex flex-row gap-2">
+          {files_urls?.length > 1 && files_urls.map((url: string, index: any) => (
+            <Button
+              key={url}
+              onClick={() => setCurrentPdf(index)}
+              variant='secondary'
+              className='text-sm shadow-sm'
+              
+              >
+              Open File {index + 1}
+            </Button>
+          ))}
+          </div>
           <Button
             disabled={currPage <= 1}
             onClick={() => {
@@ -177,7 +193,7 @@ const PdfRenderer = ({ url }: PdfRendererProps) => {
             <RotateCw className='h-4 w-4' />
           </Button>
 
-          <PdfFullscreen fileUrl={url} />
+          <PdfFullscreen fileUrl={files_urls[currentPdf]} />
         </div>
       </div>
 
@@ -198,7 +214,7 @@ const PdfRenderer = ({ url }: PdfRendererProps) => {
               onLoadSuccess={({ numPages }) =>
                 setNumPages(numPages)
               }
-              file={url}
+              file={files_urls[currentPdf]}
               className='max-h-full'>
               {isLoading && renderedScale ? (
                 <Page
