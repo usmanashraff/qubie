@@ -281,6 +281,19 @@ export const appRouter = router({
       return { exists: !!fileGroup };
     }),
 
+
+    // In your TRPC router
+updateFile: privateProcedure
+.input(z.object({ id: z.string(), name: z.string() }))
+.mutation(async ({ ctx, input }) => {
+  const updatedFileGroup = await db.fileGroup.update({
+    where: { id: input.id },
+    data: { name: input.name },
+  })
+  return updatedFileGroup
+}),
+
+
 })
 
 export type AppRouter = typeof appRouter

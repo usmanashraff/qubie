@@ -7,6 +7,7 @@ import {
   MessageSquare,
   Plus,
   Trash,
+  Pencil, // Import Pencil icon
 } from 'lucide-react'
 import Skeleton from 'react-loading-skeleton'
 import Link from 'next/link'
@@ -20,27 +21,34 @@ interface PageProps {
   subscriptionPlan: Awaited<ReturnType<typeof getUserSubscriptionPlan>>
 }
 
-const Dashboard = ({subscriptionPlan}: PageProps) => {
-  const [currentlyDeletingFile, setCurrentlyDeletingFile] =
-    useState<string | null>(null)
+const Dashboard = ({ subscriptionPlan }: PageProps) => {
+  const [currentlyDeletingFile, setCurrentlyDeletingFile] = useState<string | null>(null)
+  const [editingId, setEditingId] = useState<string | null>(null)
+  const [newName, setNewName] = useState('')
 
   const utils = trpc.useContext()
 
-  const { data: files, isLoading } =
-    trpc.getUserFiles.useQuery()
+  const { data: files, isLoading } = trpc.getUserFiles.useQuery()
 
-  const { mutate: deleteFile } =
-    trpc.deleteFile.useMutation({
-      onSuccess: () => {
-        utils.getUserFiles.invalidate()
-      },
-      onMutate({ id }) {
-        setCurrentlyDeletingFile(id)
-      },
-      onSettled() {
-        setCurrentlyDeletingFile(null)
-      },
-    })
+  const { mutate: deleteFile } = trpc.deleteFile.useMutation({
+    onSuccess: () => {
+      utils.getUserFiles.invalidate()
+    },
+    onMutate({ id }) {
+      setCurrentlyDeletingFile(id)
+    },
+    onSettled() {
+      setCurrentlyDeletingFile(null)
+    },
+  })
+
+  const { mutate: updateFile, isPending: isUpdating } = trpc.updateFile.useMutation({
+    onSuccess: () => {
+      utils.getUserFiles.invalidate()
+      setEditingId(null)
+      setNewName('')
+    },
+  })
 
   return (
     <main className='mx-auto max-w-7xl md:p-10'>
@@ -52,7 +60,7 @@ const Dashboard = ({subscriptionPlan}: PageProps) => {
         <UploadButton isSubscribed={subscriptionPlan.isSubscribed} />
       </div>
 
-      {/* display all user files */}
+      {/* Display files */}
       {files && files?.length !== 0 ? (
         <ul className='mt-8 grid grid-cols-1 gap-6 divide-y divide-zinc-200 md:grid-cols-2 lg:grid-cols-3'>
           {files
@@ -63,23 +71,79 @@ const Dashboard = ({subscriptionPlan}: PageProps) => {
             )
             .map((file) => (
               <li
-                key={file.id}
-                className='col-span-1 divide-y divide-gray-200 rounded-lg bg-white shadow transition hover:shadow-lg'>
-                <Link
-                  href={`/dashboard/${file.id}`}
-                  className='flex flex-col gap-2'>
-                  <div className='pt-6 px-6 flex w-full items-center justify-between space-x-6'>
+              key={file.id}
+              className='col-span-1 divide-y divide-gray-200 rounded-lg bg-white shadow transition hover:shadow-lg'>
+              <div className='pt-6 px-6 flex w-full items-center justify-between space-x-6'>
+                {/* Left side (file icon and name) */}
+                <div className='flex-1 flex items-center gap-4'>
+                  <Link
+                    href={editingId === file.id ? '#' : `/dashboard/${file.id}`}
+                    className='flex items-center gap-4 flex-1'>
                     <div className='h-10 w-10 flex-shrink-0 rounded-full bg-gradient-to-r from-cyan-500 to-blue-500' />
-                    <div className='flex-1 truncate'>
-                      <div className='flex items-center space-x-3'>
-                        <h3 className='truncate text-lg font-medium text-zinc-900'>
-                          {file.name}
-                        </h3>
-                      </div>
-                    </div>
-                  </div>
-                </Link>
+                    {editingId === file.id ? (
+                      <input
+                        type="text"
+                        value={newName}
+                        onChange={(e) => setNewName(e.target.value)}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter') {
+                            updateFile({ id: file.id, name: newName })
+                          }
+                        }}
+                        className="w-full truncate text-lg font-medium text-zinc-900 border rounded px-2 py-1"
+                      />
+                    ) : (
+                      <h3 className='truncate text-lg font-medium text-zinc-900'>
+                        {file.name}
+                      </h3>
+                    )}
+                  </Link>
 
+                  {/* Edit controls moved outside the Link */}
+                  <div className="flex items-center gap-2">
+                    {editingId === file.id ? (
+                      <>
+                        <Button
+                          onClick={() => updateFile({ id: file.id, name: newName })}
+                          disabled={isUpdating}
+                          size="sm"
+                          variant="default"
+                        >
+                          {isUpdating ? (
+                            <Loader2 className="h-4 w-4 animate-spin" />
+                          ) : (
+                            'Save'
+                          )}
+                        </Button>
+                        <Button
+                          onClick={() => {
+                            setEditingId(null)
+                            setNewName('')
+                          }}
+                          size="sm"
+                          variant="outline"
+                        >
+                          Cancel
+                        </Button>
+                      </>
+                    ) : (
+                      <Button
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          setEditingId(file.id)
+                          setNewName(file.name)
+                        }}
+                        variant="ghost"
+                        size="icon"
+                      >
+                        <Pencil className="h-4 w-4" />
+                      </Button>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+                {/* Rest of the file details */}
                 <div className='px-6 mt-4 grid grid-cols-3 place-items-center py-2 gap-6 text-xs text-zinc-500'>
                   <div className='flex items-center gap-2'>
                     <Plus className='h-4 w-4' />
