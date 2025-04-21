@@ -286,8 +286,9 @@ export const appRouter = router({
 updateFile: privateProcedure
 .input(z.object({ id: z.string(), name: z.string() }))
 .mutation(async ({ ctx, input }) => {
+  const { userId } = ctx;
   const updatedFileGroup = await db.fileGroup.update({
-    where: { id: input.id },
+    where: { id: input.id, userId },
     data: { name: input.name },
   })
   return updatedFileGroup
