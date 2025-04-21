@@ -2,7 +2,7 @@ import ChatWrapper from '@/components/chat/ChatWrapper'
 import PdfRenderer from '@/components/PdfRenderer'
 import { db } from '@/db'
 import { getKindeServerSession } from '@kinde-oss/kinde-auth-nextjs/server'
-import { notFound, redirect } from 'next/navigation'
+import { redirect } from 'next/navigation'
 import { Loader2 } from 'lucide-react'
 import { Suspense } from 'react'
 
@@ -47,7 +47,7 @@ const Page = async ({ params }: PageProps) => {
   }
 
   // Update upload status
-  const updatedFileGroup = await db.fileGroup.update({
+  await db.fileGroup.update({
     where: { id: fileGroup.id },
     data: { uploadStatus: 'SUCCESS' },
   })
@@ -59,8 +59,7 @@ const Page = async ({ params }: PageProps) => {
     },
   })
 
-  const files_urls = files.map(file => file.url)
-
+  // const files_urls = files.map(file => file.url)
   return (
     <div className='flex-1 justify-between flex flex-col h-[calc(100vh-3.5rem)]'>
       <div className='mx-auto w-full max-w-8xl grow lg:flex xl:px-2'>
@@ -71,7 +70,7 @@ const Page = async ({ params }: PageProps) => {
                 <Loader2 className="h-8 w-8 animate-spin text-blue-500" />
               </div>
             }>
-              <PdfRenderer files_urls={files_urls} />
+              <PdfRenderer files={files} />
             </Suspense>
           </div>
         </div>

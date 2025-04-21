@@ -6,20 +6,16 @@ import {
   Loader2,
   RotateCw,
   Search,
+  Download,
 } from 'lucide-react'
+import { useState, useEffect } from 'react'
 import { Document, Page, pdfjs } from 'react-pdf'
-
-import 'react-pdf/dist/Page/AnnotationLayer.css'
-import 'react-pdf/dist/Page/TextLayer.css'
-import {toast} from 'sonner'
+import { toast } from 'sonner'
 import { useResizeDetector } from 'react-resize-detector'
 import { Button } from './ui/button'
 import { Input } from './ui/input'
-import { useState } from 'react'
-
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
-
 import { zodResolver } from '@hookform/resolvers/zod'
 import { cn } from '@/lib/utils'
 import {
@@ -28,41 +24,62 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from './ui/dropdown-menu'
-
 import SimpleBar from 'simplebar-react'
 import PdfFullscreen from './PdfFullscreen'
 
 pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js`
+import 'react-pdf/dist/Page/AnnotationLayer.css';
+import 'react-pdf/dist/Page/TextLayer.css';
 
-// interface PdfRendererProps {
-//   url: string
-// }
 
-const PdfRenderer = ({ files_urls }: any) => {
+interface PdfRendererProps {
+ files:  {
+      id: string;
+      name: string;
+      uploadStatus: 'SUCCESS' | 'FAILED' | 'PENDING'| 'PROCESSING'; // adjust if more statuses exist
+      url: string;
+      key: string;
+      createdAt: Date;
+      updatedAt: Date;
+      userId: string | null;
+      fileGroupId: string | null;
+      }[]
+}
 
+interface fileInterface {
+  id: string;
+  name: string;
+  uploadStatus: 'SUCCESS' | 'FAILED' | 'PENDING' | 'PROCESSING' ; // adjust if more statuses exist
+  url: string;
+  key: string;
+  createdAt: Date;
+  updatedAt: Date;
+  userId: string | null;
+  fileGroupId: string | null;
+}
+const PdfRenderer = ({ files }: PdfRendererProps) => {
   const [numPages, setNumPages] = useState<number>()
   const [currPage, setCurrPage] = useState<number>(1)
   const [scale, setScale] = useState<number>(1)
   const [rotation, setRotation] = useState<number>(0)
-  const [renderedScale, setRenderedScale] = useState<
-    number | null
-  >(null)
+  const [renderedScale, setRenderedScale] = useState<number | null>(null)
   const [currentPdf, setCurrentPdf] = useState<number>(0)
-
+  const [fileType, setFileType] = useState<'pdf' | 'doc' | 'docx' | 'ppt' | 'pptx' | 'xls' | 'xlsx' | 'txt'>('pdf')
+  const [textContent, setTextContent] = useState<string>('')
+  const [loadingText, setLoadingText] = useState(true)  
+  const [viewerUrl, setViewerUrl] = useState<string>('')
+  const [loadingViewer, setLoadingViewer] = useState(true)
+  const [viewerError, setViewerError] = useState(false)
 
   const isLoading = renderedScale !== scale
 
   const CustomPageValidator = z.object({
     page: z
       .string()
-      .refine(
-        (num) => Number(num) > 0 && Number(num) <= numPages!
-      ),
+      .refine((num) => Number(num) > 0 && Number(num) <= numPages!),
   })
 
-  type TCustomPageValidator = z.infer<
-    typeof CustomPageValidator
-  >
+  type TCustomPageValidator = z.infer<typeof CustomPageValidator>
 
   const {
     register,
@@ -70,181 +87,294 @@ const PdfRenderer = ({ files_urls }: any) => {
     formState: { errors },
     setValue,
   } = useForm<TCustomPageValidator>({
-    defaultValues: {
-      page: '1',
-    },
+    defaultValues: { page: '1' },
     resolver: zodResolver(CustomPageValidator),
   })
 
-  console.log(errors)
-
   const { width, ref } = useResizeDetector()
+   // Add this useEffect to handle files array changes
+   useEffect(() => {
+    // Reset to first file when files array changes
+    setCurrentPdf(0)
+  }, [files.length]) // Trigger when file count changes
 
-  const handlePageSubmit = ({
-    page,
-  }: TCustomPageValidator) => {
+
+  useEffect(() => {
+    const detectFileType = (filename: string) => {
+      const extension = filename.split('.').pop()?.toLowerCase()
+      if (extension === 'pdf') return 'pdf'
+      if (extension === 'docx') return 'docx'
+      if (extension === 'doc') return 'doc'
+      if (extension === 'ppt') return 'ppt'
+      if (extension === 'pptx') return 'pptx'
+      if (extension === 'xls') return 'xls'
+      if (extension === 'xlsx') return 'xlsx'
+      if (extension === 'txt') return 'txt'
+      return 'pdf'
+    }
+
+    const type = detectFileType(files[currentPdf].name)
+    setFileType(type)
+    
+    if (type !== 'pdf') {
+      if (type === 'txt') {
+        setLoadingText(true)
+        fetch(files[currentPdf].url)
+          .then(res => res.text())
+          .then(text => {
+            setTextContent(text)
+            setLoadingText(false)
+          })
+          .catch(() => {
+            setViewerError(true)
+            setLoadingText(false)
+          })
+      } else {
+        setViewerError(false)
+        setLoadingViewer(true)
+        const encodedUrl = encodeURIComponent(files[currentPdf].url)
+        setViewerUrl(`https://docs.google.com/gview?url=${encodedUrl}&embedded=true`)
+      }
+    }
+  }, [currentPdf, files])
+
+  const handlePageSubmit = ({ page }: TCustomPageValidator) => {
     setCurrPage(Number(page))
     setValue('page', String(page))
   }
 
-  return (
-    <div className='w-full  rounded-md shadow flex flex-col items-center'>
-     
-      <div className='h-14 w-full border-b border-zinc-200 flex items-center justify-between px-2'>
-        <div className='flex items-center gap-1.5'>
-            <div className="w-full flex flex-row gap-2">
-          {files_urls?.length > 1 && files_urls.map((url: string, index: any) => (
-            <Button
-              key={url}
-              onClick={() => setCurrentPdf(index)}
-              variant='secondary'
-              className={`text-sm shadow-sm ${
-                currentPdf === index ? 'bg-blue-100' : 'bg-white'
-              }`}
-              
-              >
-              Open File {index + 1}
-            </Button>
-          ))}
-          </div>
-          <Button
-            disabled={currPage <= 1}
-            onClick={() => {
-              setCurrPage((prev) =>
-                prev - 1 > 1 ? prev - 1 : 1
-              )
-              setValue('page', String(currPage - 1))
-            }}
-            variant='ghost'
-            aria-label='previous page'>
-            <ChevronDown className='h-4 w-4' />
-          </Button>
+  const renderContent = () => {
+    if (fileType === 'pdf') {
+      return (
+        <Document
+          loading={
+            <div className='flex justify-center '>
+              <Loader2 className='my-24 h-6 w-6 animate-spin' />
+            </div>
+          }
+          onLoadError={() => toast.error('Error loading PDF')}
+          onLoadSuccess={({ numPages }) => setNumPages(numPages)}
+          file={files[currentPdf].url}
+          className='max-h-full'
+        >
+          {isLoading && renderedScale ? (
+            <Page
+              width={width ? width : 1}
+              pageNumber={currPage}
+              scale={scale}
+              rotate={rotation}
+              key={'@' + renderedScale}
+              renderTextLayer={false} // Disable text layer
+              renderAnnotationLayer={false} // Disable annotations
 
-          <div className='flex items-center gap-1.5'>
-            <Input
-              {...register('page')}
-              className={cn(
-                'w-12 h-8',
-                errors.page && 'focus-visible:ring-red-500'
+            />
+          ) : null}
+
+          <Page
+            className={cn(isLoading ? 'hidden' : '')}
+            width={width ? width : 1}
+            pageNumber={currPage}
+            scale={scale}
+            rotate={rotation}
+            key={'@' + scale}
+            renderTextLayer={false} // Disable text layer
+            renderAnnotationLayer={false} // Disable annotations
+            loading={
+              <div className='flex justify-center'>
+                <Loader2 className='my-24 h-6 w-6 animate-spin' />
+              </div>
+            }
+            onRenderSuccess={() => setRenderedScale(scale)}
+          />
+        </Document>
+      )
+    }
+
+
+    if (fileType === 'txt') {
+      return (
+        <div className="w-full h-full min-h-[500px] p-4">
+          {viewerError ? (
+            <div className="flex flex-col items-center justify-center h-full p-4">
+              <p className="text-lg text-gray-500 mb-4">
+                Preview unavailable - download file instead
+              </p>
+              <Button asChild>
+                <a 
+                  href={files[currentPdf].url} 
+                  download
+                  className="gap-2"
+                >
+                  <Download className="h-4 w-4" />
+                  Download Original File
+                </a>
+              </Button>
+            </div>
+          ) : (
+            <>
+              {loadingText ? (
+                <div className='flex justify-center'>
+                  <Loader2 className='my-24 h-6 w-6 animate-spin' />
+                </div>
+              ) : (
+                <pre className="whitespace-pre-wrap font-mono bg-gray-50 p-4 rounded-md overflow-auto h-full">
+                  {textContent}
+                </pre>
               )}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter') {
-                  handleSubmit(handlePageSubmit)()
-                }
+            </>
+          )}
+        </div>
+      )
+    }
+    return (
+      <div className="w-full h-full min-h-[500px]">
+        {viewerError ? (
+          <div className="flex flex-col items-center justify-center h-full p-4">
+            <p className="text-lg text-gray-500 mb-4">
+              Preview unavailable - download file instead
+            </p>
+            <Button asChild>
+              <a 
+                href={files[currentPdf].url} 
+                download
+                className="gap-2"
+              >
+                <Download className="h-4 w-4" />
+                Download Original File
+              </a>
+            </Button>
+          </div>
+        ) : (
+          <>
+            {loadingViewer && (
+              <div className='flex justify-center'>
+                <Loader2 className='my-24 h-6 w-6 animate-spin' />
+              </div>
+            )}
+            <iframe
+              src={viewerUrl}
+              className={cn(
+                'w-full h-full min-h-[500px]',
+                loadingViewer ? 'hidden' : 'block'
+              )}
+              frameBorder="0"
+              onLoad={() => setLoadingViewer(false)}
+              onError={() => {
+                setViewerError(true)
+                setLoadingViewer(false)
               }}
             />
-            <p className='text-zinc-700 text-sm space-x-1'>
-              <span>/</span>
-              <span>{numPages ?? 'x'}</span>
-            </p>
-          </div>
+          </>
+        )}
+      </div>
+    )
+  }
 
-          <Button
-            disabled={
-              numPages === undefined ||
-              currPage === numPages
-            }
-            onClick={() => {
-              setCurrPage((prev) =>
-                prev + 1 > numPages! ? numPages! : prev + 1
-              )
-              setValue('page', String(currPage + 1))
-            }}
-            variant='ghost'
-            aria-label='next page'>
-            <ChevronUp className='h-4 w-4' />
+  return (
+    <div className='w-full rounded-md shadow flex flex-col items-center'>
+      <div className='h-14 w-full border-b border-zinc-200 flex items-center justify-between px-2'>
+        <div className='flex items-center gap-1.5'>
+          <div className="w-full flex flex-row gap-2">
+            {files && files?.length > 1 && files.map((file: fileInterface, index: number) => (
+            <Button
+            key={file.id}
+            onClick={() => setCurrentPdf(index)}
+            variant='secondary'
+            className={`text-sm shadow-sm truncate max-w-[100px] ${
+              currentPdf === index ? 'bg-blue-100' : 'bg-white'
+            }`}
+            title={file.name} // Show full name on hover
+          >
+            <span className="truncate">
+              {file.name}
+            </span>
           </Button>
+            ))}
+          </div>
+          
+          {fileType === 'pdf' && (
+            <>
+              <Button
+                disabled={currPage <= 1}
+                onClick={() => {
+                  setCurrPage((prev) => (prev - 1 > 1 ? prev - 1 : 1))
+                  setValue('page', String(currPage - 1))
+                }}
+                variant='ghost'
+                aria-label='previous page'
+              >
+                <ChevronDown className='h-4 w-4' />
+              </Button>
+
+              <div className='flex items-center gap-1.5'>
+                <Input
+                  {...register('page')}
+                  className={cn(
+                    'w-12 h-8',
+                    errors.page && 'focus-visible:ring-red-500'
+                  )}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') handleSubmit(handlePageSubmit)()
+                  }}
+                />
+                <p className='text-zinc-700 text-sm space-x-1'>
+                  <span>/</span>
+                  <span>{numPages ?? 'x'}</span>
+                </p>
+              </div>
+
+              <Button
+                disabled={numPages === undefined || currPage === numPages}
+                onClick={() => {
+                  setCurrPage((prev) => prev + 1 > numPages! ? numPages! : prev + 1)
+                  setValue('page', String(currPage + 1))
+                }}
+                variant='ghost'
+                aria-label='next page'
+              >
+                <ChevronUp className='h-4 w-4' />
+              </Button>
+            </>
+          )}
         </div>
 
         <div className='space-x-2'>
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
+          {fileType === 'pdf' && (
+            <>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button className='gap-1.5' aria-label='zoom' variant='ghost'>
+                    <Search className='h-4 w-4' />
+                    {scale * 100}%
+                    <ChevronDown className='h-3 w-3 opacity-50' />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent>
+                  <DropdownMenuItem onSelect={() => setScale(1)}>100%</DropdownMenuItem>
+                  <DropdownMenuItem onSelect={() => setScale(1.5)}>150%</DropdownMenuItem>
+                  <DropdownMenuItem onSelect={() => setScale(2)}>200%</DropdownMenuItem>
+                  <DropdownMenuItem onSelect={() => setScale(2.5)}>250%</DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+
               <Button
-                className='gap-1.5'
-                aria-label='zoom'
-                variant='ghost'>
-                <Search className='h-4 w-4' />
-                {scale * 100}%
-                <ChevronDown className='h-3 w-3 opacity-50' />
+                onClick={() => setRotation((prev) => prev + 90)}
+                variant='ghost'
+                aria-label='rotate 90 degrees'
+              >
+                <RotateCw className='h-4 w-4' />
               </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent>
-              <DropdownMenuItem
-                onSelect={() => setScale(1)}>
-                100%
-              </DropdownMenuItem>
-              <DropdownMenuItem
-                onSelect={() => setScale(1.5)}>
-                150%
-              </DropdownMenuItem>
-              <DropdownMenuItem
-                onSelect={() => setScale(2)}>
-                200%
-              </DropdownMenuItem>
-              <DropdownMenuItem
-                onSelect={() => setScale(2.5)}>
-                250%
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
 
-          <Button
-            onClick={() => setRotation((prev) => prev + 90)}
-            variant='ghost'
-            aria-label='rotate 90 degrees'>
-            <RotateCw className='h-4 w-4' />
-          </Button>
-
-          <PdfFullscreen fileUrl={files_urls[currentPdf]} />
+              <PdfFullscreen fileUrl={files[currentPdf].url} />
+            </>
+          )}
         </div>
       </div>
 
       <div className='flex-1 w-full max-h-screen'>
-        <SimpleBar
-          autoHide={false}
-          className='max-h-[calc(100vh-10rem)]'>
+        <SimpleBar autoHide={false} className='max-h-[calc(100vh-10rem)]'>
           <div ref={ref}>
-            <Document
-              loading={
-                <div className='flex justify-center'>
-                  <Loader2 className='my-24 h-6 w-6 animate-spin' />
-                </div>
-              }
-              onLoadError={() => {
-                toast.error('Error loading PDF')
-            }}
-              onLoadSuccess={({ numPages }) =>
-                setNumPages(numPages)
-              }
-              file={files_urls[currentPdf]}
-              className='max-h-full'>
-              {isLoading && renderedScale ? (
-                <Page
-                  width={width ? width : 1}
-                  pageNumber={currPage}
-                  scale={scale}
-                  rotate={rotation}
-                  key={'@' + renderedScale}
-                />
-              ) : null}
-
-              <Page
-                className={cn(isLoading ? 'hidden' : '')}
-                width={width ? width : 1}
-                pageNumber={currPage}
-                scale={scale}
-                rotate={rotation}
-                key={'@' + scale}
-                loading={
-                  <div className='flex justify-center'>
-                    <Loader2 className='my-24 h-6 w-6 animate-spin' />
-                  </div>
-                }
-                onRenderSuccess={() =>
-                  setRenderedScale(scale)
-                }
-              />
-            </Document>
+            {renderContent()}
           </div>
         </SimpleBar>
       </div>

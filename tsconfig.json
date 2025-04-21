@@ -1,5 +1,8 @@
 {
   "compilerOptions": {
+    "types": [
+      "dompurify"
+    ],
     "lib": [
       "dom",
       "dom.iterable",

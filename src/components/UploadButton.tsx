@@ -36,7 +36,7 @@ const UploadDropzone = ({
   const { mutate: startPolling } = trpc.getFile.useMutation(
     {
       onSuccess: (file) => {
-        console.log("👍🏻: file linked with filegroup")
+        console.log("👍🏻: file linked with filegroup", file)
       },
       retry: true,
       retryDelay: 500,
@@ -63,15 +63,17 @@ const UploadDropzone = ({
     <Dropzone
     multiple={true}
     onDrop={async (acceptedFiles) => {
-      setIsUploading(true)
-      const progressInterval = startSimulatedProgress()
+       setIsUploading(true)
+       const progressInterval = startSimulatedProgress()
   
-      // ✅ Generate fileGroupId once
-      const fileGroupId = cuid()
+      // // ✅ Generate fileGroupId once
+       const fileGroupId = cuid()
 
-      const res = await startUpload(
-        acceptedFiles
-      ); 
+       const res = await startUpload(
+         acceptedFiles
+       );
+       console.log(res)
+ 
       if (!res || res.length === 0) {
         clearInterval(progressInterval)
         return toast.error("Something went wrong - no res", {
@@ -115,7 +117,7 @@ const UploadDropzone = ({
             </div>
   
             {acceptedFiles.length > 0 && (
-              <div className="w-full px-4 space-y-2">
+              <div className="w-full px-4 space-y-2 flex flex-col items-center justify-center ">
                 {acceptedFiles.map((file, i) => (
                   <div
                     key={i}

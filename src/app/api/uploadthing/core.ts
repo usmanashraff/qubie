@@ -7,6 +7,11 @@ import { VertexAIEmbeddings } from "@langchain/google-vertexai";
 import { PineconeStore } from "@langchain/pinecone";
 import { getUserSubscriptionPlan } from "@/lib/stripe";
 import { PLANS } from "@/config/stripe";
+import { RecursiveCharacterTextSplitter } from "langchain/text_splitter";
+import { DocxLoader } from "@langchain/community/document_loaders/fs/docx";
+import { Document } from "@langchain/core/documents";
+import WordExtractor from "word-extractor";
+import { parseOfficeAsync } from 'officeparser';
 
 const f = createUploadthing();
 
@@ -24,8 +29,6 @@ const middleware = async () => {
   };
 };
 
-
-// onUploadComplete is called for each file individually
 const onUploadComplete = async ({
   metadata,
   file,
@@ -41,7 +44,6 @@ const onUploadComplete = async ({
     where: { key: file.key },
   });
 
-  // Avoid reprocessing same file
   if (isFileExist) return;
 
   const createdFile = await db.file.create({
@@ -57,17 +59,110 @@ const onUploadComplete = async ({
   try {
     const response = await fetch(file.ufsUrl);
     const blob = await response.blob();
-    const loader = new PDFLoader(blob);
-    const pageLevelDocs = await loader.load();
+    const fileExtension = file.name.split('.').pop()?.toLowerCase();
+    let pageLevelDocs;
+    let pagesAmt;
 
-    const pagesAmt = pageLevelDocs.length;
+    if (fileExtension === 'pdf') {
+      const loader = new PDFLoader(blob);
+      pageLevelDocs = await loader.load();
+      pagesAmt = pageLevelDocs.length;
+    } 
+    else if (['docx', 'doc'].includes(fileExtension!)) {
+      let rawText: string;
+
+      if (fileExtension === 'docx') {
+        const loader = new DocxLoader(blob);
+        const docs = await loader.load();
+        rawText = docs.map(doc => doc.pageContent).join('\n');
+      } else {
+        const arrayBuffer = await blob.arrayBuffer();
+        const buffer = Buffer.from(arrayBuffer);
+        const extractor = new WordExtractor();
+        const extracted = await extractor.extract(buffer);
+        rawText = extracted.getBody() || '';
+      }
+
+      const textSplitter = new RecursiveCharacterTextSplitter({
+        chunkSize: 1000,
+        chunkOverlap: 200,
+      });
+      
+      pageLevelDocs = await textSplitter.splitDocuments([
+        new Document({ pageContent: rawText }),
+      ]);
+      pagesAmt = pageLevelDocs.length;
+    }
+    else if (['pptx', 'ppt'].includes(fileExtension!)) {
+      // Process PowerPoint files
+      const arrayBuffer = await blob.arrayBuffer();
+      const buffer = Buffer.from(arrayBuffer);
+      
+      // Parse PowerPoint content
+      // Correct configuration format
+      const rawText = await parseOfficeAsync(buffer);
+
+      const textSplitter = new RecursiveCharacterTextSplitter({
+        chunkSize: 1000,
+        chunkOverlap: 200,
+      });
+
+      pageLevelDocs = await textSplitter.splitDocuments([
+        new Document({ 
+          pageContent: rawText,
+          metadata: { source: file.name }
+        }),
+      ]);
+      pagesAmt = pageLevelDocs.length;
+    }
+    else if( (['xlsx', 'xls'].includes(fileExtension!)) ){
+       // Process Excel files
+        const arrayBuffer = await blob.arrayBuffer();
+        const buffer = Buffer.from(arrayBuffer);
+        
+        const rawText = await parseOfficeAsync(buffer);
+        const textSplitter = new RecursiveCharacterTextSplitter({
+          chunkSize: 1000,
+          chunkOverlap: 200,
+        });
+
+        pageLevelDocs = await textSplitter.splitDocuments([
+          new Document({ 
+            pageContent: rawText,
+            metadata: { source: file.name }
+          }),
+        ]);
+        pagesAmt = pageLevelDocs.length;
+    }
+    else if (fileExtension === 'txt') {
+      // Process TXT files
+      const rawText = await blob.text();
+      
+      const textSplitter = new RecursiveCharacterTextSplitter({
+        chunkSize: 1000,
+        chunkOverlap: 200,
+      });
+
+      pageLevelDocs = await textSplitter.splitDocuments([
+        new Document({ 
+          pageContent: rawText,
+          metadata: { 
+            source: file.name,
+            fileType: 'text'
+          }
+        }),
+      ]);
+      pagesAmt = pageLevelDocs.length;
+    }
+    else {
+      throw new Error('Unsupported file type. Supported formats: PDF, Word, PowerPoint, Excel, TXT');
+    }
+
     const { isSubscribed } = metadata.subscriptionPlan;
-
     const maxPages = isSubscribed
       ? PLANS.find((p) => p.name === "Pro")!.pagesPerPdf
       : PLANS.find((p) => p.name === "Free")!.pagesPerPdf;
 
-    // Exceed check
     if (pagesAmt > maxPages) {
       await db.file.update({
         where: { id: createdFile.id },
@@ -76,10 +171,8 @@ const onUploadComplete = async ({
       return;
     }
 
-    // Vectorize and store in Pinecone
     const pinecone = await getPineconClient();
     const pineconeIndex = pinecone.Index("qubie");
-
     const embeddings = new VertexAIEmbeddings({
       model: "textembedding-gecko@latest",
     });
@@ -94,9 +187,9 @@ const onUploadComplete = async ({
       data: { uploadStatus: "SUCCESS" },
     });
 
-    console.log("✅ PDF embeddings completed:", file.name);
+    console.log("✅ embeddings completed for:", file.name);
   } catch (err) {
-    console.error("❌ Error processing PDF:", err);
+    console.error("❌ Error processing document:", err);
     await db.file.update({
       where: { id: createdFile.id },
       data: { uploadStatus: "FAILED" },
@@ -104,13 +197,48 @@ const onUploadComplete = async ({
   }
 };
 
-// Define routers (same logic, different file sizes)
 export const ourFileRouter = {
-  freePlanUploader: f({ pdf: { maxFileSize: "4MB", maxFileCount: 10 } })
+  freePlanUploader: f({ 
+    pdf: { maxFileSize: "4MB", maxFileCount: 10 },
+    "application/vnd.openxmlformats-officedocument.wordprocessingml.document": { maxFileSize: "4MB", maxFileCount: 10 },
+    "application/msword": { maxFileSize: "4MB", maxFileCount: 10 },
+    "application/vnd.openxmlformats-officedocument.presentationml.presentation": { maxFileSize: "4MB", maxFileCount: 10 },
+    "application/vnd.ms-powerpoint": { maxFileSize: "4MB", maxFileCount: 10 },
+      // Excel
+      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet": {
+        maxFileSize: "4MB",
+        maxFileCount: 10,
+      },
+      "application/vnd.ms-excel": {
+        maxFileSize: "4MB",
+        maxFileCount: 10,
+      },
+  })
     .middleware(middleware)
     .onUploadComplete(onUploadComplete),
 
-  proPlanUploader: f({ pdf: { maxFileSize: "32MB", maxFileCount: 10 } })
+  proPlanUploader: f({ 
+    pdf: { maxFileSize: "32MB", maxFileCount: 10 },
+    "application/vnd.openxmlformats-officedocument.wordprocessingml.document": { maxFileSize: "4MB", maxFileCount: 10 },
+    "application/msword": { maxFileSize: "4MB", maxFileCount: 10 }, 
+    "application/vnd.ms-powerpoint": { maxFileSize: "32MB", maxFileCount: 10 },
+    "application/vnd.openxmlformats-officedocument.presentationml.presentation": { maxFileSize: "32MB", maxFileCount: 10 },
+      // Excel
+      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet": {
+        maxFileSize: "4MB",
+        maxFileCount: 10,
+      },
+      "application/vnd.ms-excel": {
+        maxFileSize: "4MB",
+        maxFileCount: 10,
+      },
+
+       // Text files
+        "text/plain": {
+          maxFileSize: "4MB", // Text files are usually small
+          maxFileCount: 10,
+        },
+  })
     .middleware(middleware)
     .onUploadComplete(onUploadComplete),
 } satisfies FileRouter;
