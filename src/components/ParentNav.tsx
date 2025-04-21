@@ -1,0 +1,72 @@
+
+import * as React from "react"
+import Link from "next/link"
+import { cn } from "@/lib/utils"
+import { Button } from "@/components/ui/button"
+import {
+    LoginLink,
+    RegisterLink,
+    getKindeServerSession,
+  } from '@kinde-oss/kinde-auth-nextjs/server'
+  import { ArrowRight } from 'lucide-react'
+  import UserAccountNav from './UserAccountNav'
+  import {Navbar} from "@/components/Navbar";
+
+export async function ParentNav() {
+    const { getUser } = getKindeServerSession()
+    const user = await getUser()
+  return (
+    <div className={cn(
+      "fixed top-0 w-full z-50 transition-all duration-300", 
+         "bg-background/90 backdrop-blur-md shadow-md" 
+    )}>
+      <div className="container flex h-16 items-center">
+      <Navbar />
+
+        
+        <div className="flex-1 flex justify-center md:justify-end">
+          <div className="flex items-center gap-4">
+            
+
+
+
+            {!user ? (
+              <>
+                <LoginLink>
+                    <Button variant="ghost" size="sm" className="hidden md:flex">
+                        Log in
+                        </Button>
+                </LoginLink>
+                <RegisterLink>
+                  <Button variant="default" size="sm" className="bg-gradient-to-r from-indigo-600 to-teal-500 hover:from-indigo-500 hover:to-teal-400">
+              Get Started {' '}
+              <ArrowRight className='ml-1.5 h-5 w-5' />
+            </Button>
+                </RegisterLink>
+              </>
+            ) : (
+              <>
+                <Link
+                  href='/dashboard'>
+                   <Button variant="ghost" size="sm" className="hidden md:flex">
+                        Dashboard
+                        </Button>
+                </Link>
+               
+                <UserAccountNav
+                  name={
+                    !user.given_name || !user.family_name
+                      ? 'Your Account'
+                      : `${user.given_name} ${user.family_name}`
+                  }
+                  email={user.email ?? ''}
+                  imageUrl={user.picture ?? ''}
+                />
+              </>
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}

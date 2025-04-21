@@ -1,0 +1,200 @@
+"use client"
+
+import React from "react"
+import { motion } from "@/lib/motion"
+import { Check, ChevronRight } from "lucide-react"
+import { cn } from "@/lib/utils"
+import { Button } from "@/components/ui/button"
+
+const pricingTiers = [
+  {
+    name: "Free",
+    description: "For Individuals exploring document AI",
+    price: "$0",
+    period: "forever",
+    features: [
+      "3 documents per document",
+      "Max 200 pages per document",
+      "Max 4MB file size",
+      "Basic AI responses",
+      "Mobile-friendly interface",
+      "Multiple documents included i.e. docx, xlsx, pptx, pdf",
+      "No credit card required"
+    ],
+    cta: "Get Started",
+    highlight: false
+  },
+  {
+    name: "Pro",
+    description: "For professionals and small teams",
+    price: "$10",
+    period: "per month",
+    features: [
+      "10 documents per document",
+      "Max 500 pages per document",
+      "Max 32MB file size",
+      "Advanced AI responses",
+      "Cross-document references",
+      "Priority support",
+      "Multiple documents included i.e. docx, xlsx, pptx, pdf"
+    ],
+    cta: "Start Free Trial",
+    highlight: true,
+    badge: "Most Popular"
+  },
+  
+]
+
+export function Pricing() {
+  return (
+    <section id="pricing" className="py-24 relative">
+      {/* Background gradient and pattern */}
+      <div className="absolute inset-0 bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950 opacity-60 z-0" />
+      <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-slate-700/50 to-transparent" />
+      
+      <div className="container relative z-10">
+        <div className="text-center max-w-3xl mx-auto mb-16">
+          <motion.span 
+            className="inline-block px-3 py-1 bg-teal-500/10 rounded-full text-teal-400 text-sm font-medium mb-4"
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+            viewport={{ once: true }}
+          >
+            PRICING PLANS
+          </motion.span>
+          
+          <motion.h2 
+            className="text-3xl md:text-4xl font-bold font-space-grotesk mb-6 bg-clip-text text-transparent bg-gradient-to-r from-white to-slate-300"
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.1 }}
+            viewport={{ once: true }}
+          >
+            Simple, Transparent Pricing
+          </motion.h2>
+          
+          <motion.p 
+            className="text-slate-400 text-lg"
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.2 }}
+            viewport={{ once: true }}
+          >
+            Choose the plan that fits your needs. All plans include a 14-day free trial with no credit card required.
+          </motion.p>
+        </div>
+        
+        <div className="grid md:grid-cols-2 gap-8 max-w-5xl mx-auto">
+          {pricingTiers.map((tier, index) => (
+            <PricingCard key={index} tier={tier} index={index} />
+          ))}
+        </div>
+        
+        <motion.div 
+          className="mt-16 text-center max-w-3xl mx-auto"
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.4 }}
+          viewport={{ once: true }}
+        >
+          <p className="text-slate-400">
+            All plans include <span className="text-white">24-hour availability</span>, <span className="text-white">secure infrastructure</span>, and <span className="text-white">regular feature updates</span>. Need a custom plan? Contact our sales team.
+          </p>
+          <div className="mt-4 flex justify-center gap-2">
+            <div className="flex items-center">
+              <div className="w-4 h-4 rounded-full bg-indigo-500 mr-2"></div>
+              <span className="text-sm text-slate-400">SOC 2 Compliance</span>
+            </div>
+            <div className="flex items-center">
+              <div className="w-4 h-4 rounded-full bg-teal-500 mr-2"></div>
+              <span className="text-sm text-slate-400">GDPR Ready</span>
+            </div>
+            <div className="flex items-center">
+              <div className="w-4 h-4 rounded-full bg-purple-500 mr-2"></div>
+              <span className="text-sm text-slate-400">HIPAA Available</span>
+            </div>
+          </div>
+        </motion.div>
+      </div>
+    </section>
+  )
+}
+
+function PricingCard({ tier, index }: { tier: typeof pricingTiers[0], index: number }) {
+  return (
+    <motion.div 
+      className={cn(
+        "relative rounded-xl overflow-hidden",
+        tier.highlight 
+          ? "border-2 border-indigo-500" 
+          : "border border-slate-700/50",
+      )}
+      initial={{ opacity: 0, y: 30 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5, delay: index * 0.1 + 0.3 }}
+      viewport={{ once: true }}
+    >
+      {/* Badge for highlighted tier */}
+      {tier.highlight && tier.badge && (
+        <div className="absolute top-0 right-0 -mt-1 -mr-1 z-10">
+          <div className="bg-gradient-to-r from-indigo-500 to-teal-500 text-white text-xs font-bold px-3 py-1 rounded-bl-lg rounded-tr-lg shadow-lg">
+            {tier.badge}
+          </div>
+        </div>
+      )}
+      
+      {/* Glow effect for highlighted tier */}
+      {tier.highlight && (
+        <div className="absolute inset-0 z-0">
+          <div className="absolute inset-0 bg-gradient-to-b from-indigo-500/10 to-transparent" />
+        </div>
+      )}
+      
+      <div className={cn(
+        "relative z-1 p-8",
+        "bg-gradient-to-b from-slate-800/90 to-slate-900/90 backdrop-blur-sm"
+      )}>
+        <div className="text-center mb-6">
+          <h3 className="text-xl font-bold text-white mb-2">
+            {tier.name}
+          </h3>
+          <p className="text-slate-400 text-sm min-h-[40px]">
+            {tier.description}
+          </p>
+        </div>
+        
+        <div className="text-center mb-6">
+          <div className="flex items-end justify-center">
+            <span className="text-4xl font-bold text-white">{tier.price}</span>
+            {tier.price !== "Custom" && (
+              <span className="text-slate-400 ml-1 mb-1">/{tier.period}</span>
+            )}
+          </div>
+        </div>
+        
+        <div className="space-y-4 mb-8">
+          {tier.features.map((feature, i) => (
+            <div key={i} className="flex items-start">
+              <div className="flex-shrink-0 h-5 w-5 rounded-full bg-teal-500/20 flex items-center justify-center mr-3 mt-0.5">
+                <Check className="h-3 w-3 text-teal-400" />
+              </div>
+              <span className="text-slate-300 text-sm">{feature}</span>
+            </div>
+          ))}
+        </div>
+        
+        <Button 
+          className={cn(
+            "w-full rounded-lg",
+            tier.highlight
+              ? "bg-gradient-to-r from-indigo-600 to-teal-500 hover:from-indigo-500 hover:to-teal-400 text-white"
+              : "bg-slate-800 hover:bg-slate-700 text-white"
+          )}
+        >
+          {tier.cta} <ChevronRight className="ml-1 h-4 w-4" />
+        </Button>
+      </div>
+    </motion.div>
+  )
+}

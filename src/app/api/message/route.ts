@@ -56,7 +56,7 @@ export const POST = async (req: NextRequest) => {
       }
     })
   )
-  console.log("😂😂😂😂", fileResults)
+  console.log("context being sending to llm 😭😭😭😭", fileResults)
 
   const prevMessages = await db.message.findMany({
     where: { fileGroupId: groupId },
@@ -90,7 +90,7 @@ export const POST = async (req: NextRequest) => {
     2. Never merge concepts from different domains unless explicitly requested
     3. Clearly indicate source documents using their filenames
     4. Acknowledge conflicting perspectives between documents
-    5. if user ask something which is related to only one or two document - dont specify consider and specify other documents in response
+    5. if user ask something which is related to only one or two document - dont consider and specify other documents in response
     6. most important thing is to keep the response as short as possible. don't explain exra things that user has not asked.`
 
     ;

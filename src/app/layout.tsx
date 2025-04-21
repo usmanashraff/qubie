@@ -1,12 +1,14 @@
+
 import type { Metadata } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
-import Navbar from "@/components/Navbar";
 import Providers from "@/components/Providers";
 import 'react-loading-skeleton/dist/skeleton.css'
 import { Toaster } from "@/components/ui/sonner";
 import 'simplebar-react/dist/simplebar.min.css';
 import { Providerss } from './providers'
+import {Navbar} from "@/components/Navbar";
+import { ParentNav } from "@/components/ParentNav";
 
 
 const geistSans = localFont({
@@ -38,8 +40,9 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <Providerss>
-        <Navbar />
+        {/* <Navbar /> */}
         <Toaster />
+        <ParentNav />
         {children}
         </Providerss>
       </body>
