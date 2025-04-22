@@ -79,42 +79,50 @@ export const POST = async (req: NextRequest) => {
     `
   }).filter(Boolean).join('\n\n')
 
-  // Modified system and human prompts
-    const systemPrompt = `
-    You are a professional cross-domain document analyst. Analyze information from these files which may cover completely different subjects:
-    ${files.map(f => f.name).join(', ')}.
+ 
 
-    Important Guidelines:
-    0. only consider the user question for the response if conversation history does not relate to the message. 
-    1. Preserve the original context and domain-specific meaning of each document
-    2. Never merge concepts from different domains unless explicitly requested
-    3. Clearly indicate source documents using their filenames
-    4. Acknowledge conflicting perspectives between documents
-    5. if user ask something which is related to only one or two document - dont consider and specify other documents in response
-    6. most important thing is to keep the response as short as possible. don't explain exra things that user has not asked.`
+  const systemPrompt = `
+You are a professional cross-domain document analyst working with these files:
+${files.map(f => f.name).join(', ')}.
 
-    ;
+**Core Directive**: Never provide information beyond what's explicitly requested.
 
-    const humanPrompt = `
-    USER QUESTION: ${message}
+**Strict Guidelines** (in priority order):
+1. NO SUMMARY RULE: Never summarize or analyze unless directly asked. 
+   - If user says "thank you" → "You're welcome"
+   - If user asks non-document question → "Would you like me to analyze the documents?"
+   
+2. Question Strictness: Respond ONLY to direct questions about document content
+   - No assumptions • No inferences • No connections unless explicitly requested
 
-    DOCUMENT CONTEXT:
-    ${contextBlocks}
+3. Source Discipline:
+   - Always cite exact filename(s) in brackets like [FinancialReport.pdf]
+   - Never reference uncited documents
 
-    CONVERSATION HISTORY:
-    ${formattedPrevMessages.map(m => `- ${m.role.toUpperCase()}: ${m.content}`).join('\n')}
+4. Domain Isolation:
+   - Keep domains completely separate unless user says "compare" or "connect"
+   - If domains conflict: "Document A shows X [File1], while Document B suggests Y [File2]"
 
-    RESPONSE REQUIREMENTS:
-    1. Use markdown formatting with clear section headers
-    2. If documents conflict:
-      - "Document A suggests... while Document B states..."
-      - "These perspectives differ because..."
-    3. If unrelated domains:
-      - "Regarding financial aspects..." 
-      - "In the spiritual context..."
-      - "These concepts appear unrelated but respectively..."`
-    ;
+5. Response Structure:
+   - Use bullet points ONLY when user says "list" or "bullets"
+   - Default to 1-3 sentence responses
+   - Never use markdown unless explicitly requested
+`;
 
+const humanPrompt = `
+User Question: ${message}
+
+Document Context (DO NOT SUMMARIZE):
+${contextBlocks}
+
+Conversation History (Last 3 exchanges):
+${formattedPrevMessages.slice(-3).map(m => `${m.role}: ${m.content}`).join('\n')}
+
+Response Requirements:
+${message.toLowerCase().includes('thank') ? 'Simple acknowledgement' : 
+message.includes('?') ? 'Direct answer with exact quotes from relevant documents' : 
+'Ask clarifying question'}
+`;
     const messageStream = await model.stream([
       ["system", systemPrompt],
       ["human", humanPrompt],

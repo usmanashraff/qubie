@@ -1,4 +1,6 @@
 'use client'
+import Papa from 'papaparse';
+import * as XLSX from 'xlsx'; // Import the xlsx library
 
 import {
   ChevronDown,
@@ -58,13 +60,16 @@ interface fileInterface {
   fileGroupId: string | null;
 }
 const PdfRenderer = ({ files }: PdfRendererProps) => {
+  const [spreadsheetData, setSpreadsheetData] = useState<(string | number)[][]>([]);
   const [numPages, setNumPages] = useState<number>()
   const [currPage, setCurrPage] = useState<number>(1)
   const [scale, setScale] = useState<number>(1)
   const [rotation, setRotation] = useState<number>(0)
   const [renderedScale, setRenderedScale] = useState<number | null>(null)
   const [currentPdf, setCurrentPdf] = useState<number>(0)
-  const [fileType, setFileType] = useState<'pdf' | 'doc' | 'docx' | 'ppt' | 'pptx' | 'xls' | 'xlsx' | 'txt'>('pdf')
+  const [fileType, setFileType] = useState<
+  'pdf' | 'doc' | 'docx' | 'ppt' | 'pptx' | 'xls' | 'xlsx' | 'txt' | 'csv'
+>('pdf')
   const [textContent, setTextContent] = useState<string>('')
   const [loadingText, setLoadingText] = useState(true)  
   const [viewerUrl, setViewerUrl] = useState<string>('')
@@ -109,6 +114,7 @@ const PdfRenderer = ({ files }: PdfRendererProps) => {
       if (extension === 'pptx') return 'pptx'
       if (extension === 'xls') return 'xls'
       if (extension === 'xlsx') return 'xlsx'
+      if (extension === 'csv') return 'csv'
       if (extension === 'txt') return 'txt'
       return 'pdf'
     }
@@ -117,7 +123,7 @@ const PdfRenderer = ({ files }: PdfRendererProps) => {
     setFileType(type)
     
     if (type !== 'pdf') {
-      if (type === 'txt') {
+      if (type === 'txt' || type === 'csv') { // Add CSV to text-based files
         setLoadingText(true)
         fetch(files[currentPdf].url)
           .then(res => res.text())
@@ -129,7 +135,30 @@ const PdfRenderer = ({ files }: PdfRendererProps) => {
             setViewerError(true)
             setLoadingText(false)
           })
-      } else {
+      }
+      else if (type === 'xlsx') {
+        setLoadingText(true);
+        fetch(files[currentPdf].url)
+          .then(res => res.arrayBuffer())
+          .then(data => {
+            const workbook = XLSX.read(data, { type: 'array' });
+            const firstSheetName = workbook.SheetNames[0];
+            const worksheet = workbook.Sheets[firstSheetName];
+            const jsonData: (string | number)[][] = XLSX.utils.sheet_to_json(worksheet, {
+              header: 1,
+              defval: '',
+            });
+            setSpreadsheetData(jsonData);
+            setLoadingText(false);
+          })
+          .catch((error) => {
+            console.error('Error parsing XLSX:', error);
+            setViewerError(true);
+            setLoadingText(false);
+          });
+      }  
+      else {
+        // Handle other file types with Google Viewer
         setViewerError(false)
         setLoadingViewer(true)
         const encodedUrl = encodeURIComponent(files[currentPdf].url)
@@ -144,6 +173,110 @@ const PdfRenderer = ({ files }: PdfRendererProps) => {
   }
 
   const renderContent = () => {
+    if (fileType === 'xlsx') {
+      return (
+        <div className="w-full min-h-screen border">
+          {viewerError ? (
+            <div className="flex flex-col items-center justify-center h-full p-4">
+              <p className="text-lg text-gray-500 mb-4">
+                Preview unavailable - download file instead
+              </p>
+              <Button asChild>
+                <a 
+                  href={files[currentPdf].url} 
+                  download
+                  className="gap-2"
+                >
+                  <Download className="h-4 w-4" />
+                  Download Original File
+                </a>
+              </Button>
+            </div>
+          ) : (
+            <>
+              {loadingText ? (
+                <div className='flex justify-center'>
+                  <Loader2 className='my-24 h-6 w-6 animate-spin' />
+                </div>
+              ) : (
+                <div className="overflow-auto h-full bg-gray-50 rounded-md p-4">
+                  <table className="min-w-full divide-y divide-gray-200">
+                    <tbody className="bg-white divide-y divide-gray-200">
+                      {spreadsheetData.map((row, rowIndex) => (
+                        <tr key={rowIndex}>
+                          {row.map((cell, cellIndex) => (
+                            <td 
+                              key={cellIndex}
+                              className="px-4 py-2 whitespace-nowrap text-sm text-gray-900 border"
+                            >
+                              {cell}
+                            </td>
+                          ))}
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </>
+          )}
+        </div>
+      );
+    }
+
+     if (fileType === 'csv') {
+    return (
+      <div className="w-full min-h-screen border" >
+        {viewerError ? (
+          <div className="flex flex-col items-center justify-center h-full p-4">
+            <p className="text-lg text-gray-500 mb-4">
+              Preview unavailable - download file instead
+            </p>
+            <Button asChild>
+              <a 
+                href={files[currentPdf].url} 
+                download
+                className="gap-2"
+              >
+                <Download className="h-4 w-4" />
+                Download Original File
+              </a>
+            </Button>
+          </div>
+        ) : (
+          <>
+            {loadingText ? (
+              <div className='flex justify-center'>
+                <Loader2 className='my-24 h-6 w-6 animate-spin' />
+              </div>
+            ) : (
+              <div className="overflow-auto h-full bg-gray-50 rounded-md p-4">
+              <table className="min-w-full divide-y divide-gray-200">
+                <tbody className="bg-white divide-y divide-gray-200">
+                  {Papa.parse(textContent, { skipEmptyLines: true }).data
+                    .map((row: any, rowIndex) => (
+                      <tr key={rowIndex}>
+                        {row.map((cell: string, cellIndex: number) => (
+                          <td 
+                            key={cellIndex}
+                            className="px-4 py-2 whitespace-nowrap text-sm text-gray-900 border"
+                          >
+                            {cell}
+                          </td>
+                        ))}
+                      </tr>
+                    ))}
+                </tbody>
+              </table>
+            </div>
+          
+            )}
+          </>
+        )}
+      </div>
+    )
+  }
+
     if (fileType === 'pdf') {
       return (
         <Document
@@ -193,7 +326,7 @@ const PdfRenderer = ({ files }: PdfRendererProps) => {
 
     if (fileType === 'txt') {
       return (
-        <div className="w-full h-full min-h-[500px] p-4">
+        <div className="w-full min-h-screen border-2">
           {viewerError ? (
             <div className="flex flex-col items-center justify-center h-full p-4">
               <p className="text-lg text-gray-500 mb-4">
@@ -217,7 +350,7 @@ const PdfRenderer = ({ files }: PdfRendererProps) => {
                   <Loader2 className='my-24 h-6 w-6 animate-spin' />
                 </div>
               ) : (
-                <pre className="whitespace-pre-wrap font-mono bg-gray-50 p-4 rounded-md overflow-auto h-full">
+                <pre className="whitespace-pre-wrap font-mono bg-gray-50 text-black p-4 rounded-md overflow-auto min-h-screen">
                   {textContent}
                 </pre>
               )}
@@ -227,7 +360,7 @@ const PdfRenderer = ({ files }: PdfRendererProps) => {
       )
     }
     return (
-      <div className="w-full h-full min-h-[500px]">
+      <div className="w-full h-full min-h-screen">
         {viewerError ? (
           <div className="flex flex-col items-center justify-center h-full p-4">
             <p className="text-lg text-gray-500 mb-4">
@@ -254,7 +387,7 @@ const PdfRenderer = ({ files }: PdfRendererProps) => {
             <iframe
               src={viewerUrl}
               className={cn(
-                'w-full h-full min-h-[500px]',
+                'w-full h-full min-h-screen',
                 loadingViewer ? 'hidden' : 'block'
               )}
               frameBorder="0"
@@ -271,21 +404,23 @@ const PdfRenderer = ({ files }: PdfRendererProps) => {
   }
 
   return (
-    <div className='w-full rounded-md shadow flex flex-col items-center'>
-      <div className='h-14 w-full border-b border-zinc-200 flex items-center justify-between px-2'>
-        <div className='flex items-center gap-1.5'>
+    <div className='w-full rounded-md shadow flex flex-col items-center  -mt-5'>
+      <div className='h-14 w-full flex items-center justify-between'>
+        <div className='flex items-center gap-1.5 '>
           <div className="w-full flex flex-row gap-2">
-            {files && files?.length > 1 && files.map((file: fileInterface, index: number) => (
+            {files && files.map((file: fileInterface, index: number) => (
             <Button
             key={file.id}
             onClick={() => setCurrentPdf(index)}
             variant='secondary'
-            className={`text-sm shadow-sm truncate max-w-[100px] ${
-              currentPdf === index ? 'bg-blue-100' : 'bg-white'
+            className={`text-sm shadow-sm truncate max-w-[100px] rounded-md border ${
+              currentPdf === index 
+                ? 'bg-gradient-to-r from-indigo-500/20 to-teal-500/20 text-white-800' // Active state
+                : 'bg-slate-800' // Default/hover
             }`}
-            title={file.name} // Show full name on hover
+            title={file.name}
           >
-            <span className="truncate">
+            <span className="truncate font-medium">
               {file.name}
             </span>
           </Button>

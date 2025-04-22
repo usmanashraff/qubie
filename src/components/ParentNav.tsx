@@ -11,6 +11,7 @@ import {
   import { ArrowRight } from 'lucide-react'
   import UserAccountNav from './UserAccountNav'
   import {Navbar} from "@/components/Navbar";
+import { ThemeToggle } from "./ThemeToggle"
 
 export async function ParentNav() {
     const { getUser } = getKindeServerSession()
@@ -52,7 +53,7 @@ export async function ParentNav() {
                         Dashboard
                         </Button>
                 </Link>
-               
+               <ThemeToggle />
                 <UserAccountNav
                   name={
                     !user.given_name || !user.family_name

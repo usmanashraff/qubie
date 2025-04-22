@@ -43,6 +43,7 @@
     "@trpc/react-query": "^11.0.0-rc.819",
     "@trpc/server": "^11.0.0-rc.819",
     "@types/dompurify": "^3.0.5",
+    "@types/papaparse": "^5.3.15",
     "@types/word-extractor": "^1.0.6",
     "@uploadthing/react": "^7.3.0",
     "ai": "^3.1.4",
@@ -62,6 +63,7 @@
     "next": "^15.2.0",
     "next-themes": "^0.4.6",
     "officeparser": "^4.2.0",
+    "papaparse": "^5.5.2",
     "pdf-parse": "^1.1.1",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
@@ -79,6 +81,7 @@
     "tailwindcss-animate": "^1.0.7",
     "uploadthing": "^7.5.2",
     "word-extractor": "^1.0.4",
+    "xlsx": "^0.18.5",
     "zod": "^3.24.2"
   },
   "devDependencies": {

@@ -16,16 +16,7 @@ import {
 import { Monitor, Bot, Sparkles, ShieldCheck, Users } from "lucide-react"
 
 export function Navbar() {
-  // const [isScrolled, setIsScrolled] = React.useState(false)
-  
-  // React.useEffect(() => {
-  //   const handleScroll = () => {
-  //     setIsScrolled(window.scrollY > 10)
-  //   }
-    
-  //   window.addEventListener('scroll', handleScroll)
-  //   return () => window.removeEventListener('scroll', handleScroll)
-  // }, [])
+
   
   return (
     

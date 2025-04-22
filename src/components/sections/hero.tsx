@@ -77,12 +77,12 @@ Upload, converse, conquer—your documents, reimagined.
           
           {/* Hero visual/3D interface */}
           <div 
-            className="relative h-[400px] md:h-[500px] lg:h-[600px] flex items-center justify-center"
+            className="relative h-[400px] md:h-[500px] lg:h-[600px] flex items-center justify-center "
           >
-            <div className="relative w-full max-w-lg">
+            <div className="relative w-full max-w-lg ">
               {/* Chat Interface */}
               <div 
-                className="absolute w-full h-[400px] bg-gradient-to-br from-slate-800/90 to-slate-900/90 backdrop-blur-lg rounded-xl border border-slate-700/50 shadow-2xl overflow-hidden p-4"
+                className="absolute w-full h-[400px] bg-gradient-to-br from-slate-800/90 to-slate-900/90 backdrop-blur-lg rounded-xl border border-slate-700/50 shadow-2xl overflow-hidden p-4 "
               >
                 <div className="flex flex-col h-full">
                   <div className="flex items-center justify-between mb-4 pb-3 border-b border-slate-700/50">

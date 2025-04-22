@@ -1,199 +1,170 @@
 'use client'
 
 import { useState } from 'react'
-import {
-  Dialog,
-  DialogContent,
-  DialogTrigger,
-} from './ui/dialog'
-import { Button } from './ui/button'
-
 import Dropzone from 'react-dropzone'
-import { Cloud, File, Loader2 } from 'lucide-react'
-import { Progress } from './ui/progress'
+import { Cloud, File, Loader2, Upload } from 'lucide-react'
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
+import { Button } from '@/components/ui/button'
+import { Progress } from '@/components/ui/progress'
 import { trpc } from '@/app/_trpc/client'
 import { useRouter } from 'next/navigation'
 import { useUploadThing } from '@/lib/uploadthing'
 import { toast } from "sonner"
 import cuid from 'cuid'
+import { cn } from '@/lib/utils'
 
-
-const UploadDropzone = ({
-  isSubscribed,
-}: {
-  isSubscribed: boolean
-}) => {
+const UploadDialog = ({ isSubscribed }: { isSubscribed: boolean }) => {
   const router = useRouter()
+  const [isOpen, setIsOpen] = useState(false)
+  const [isUploading, setIsUploading] = useState(false)
+  const [uploadProgress, setUploadProgress] = useState(0)
+  const [isDragging, setIsDragging] = useState(false)
+  const [acceptedFiles, setAcceptedFiles] = useState<File[]>([])
 
-  const [isUploading, setIsUploading] =
-    useState<boolean>(false)
-  const [uploadProgress, setUploadProgress] =
-    useState<number>(0)
-
-    const { startUpload } = useUploadThing(
-      isSubscribed ? 'proPlanUploader' : 'freePlanUploader'
-    );
-  const { mutate: startPolling } = trpc.getFile.useMutation(
-    {
-      onSuccess: (file) => {
-        console.log("👍🏻: file linked with filegroup", file)
-      },
-      retry: true,
-      retryDelay: 500,
-    }
-  )
+  const { startUpload } = useUploadThing(isSubscribed ? 'proPlanUploader' : 'freePlanUploader')
+  const { mutate: startPolling } = trpc.getFile.useMutation({
+    onSuccess: (file) => {
+      console.log("✅ File linked with filegroup:", file)
+    },
+    retry: true,
+    retryDelay: 500,
+  })
 
   const startSimulatedProgress = () => {
     setUploadProgress(0)
-
     const interval = setInterval(() => {
-      setUploadProgress((prevProgress) => {
-        if (prevProgress >= 95) {
+      setUploadProgress(prev => {
+        if (prev >= 95) {
           clearInterval(interval)
-          return prevProgress
+          return prev
         }
-        return prevProgress + 5
+        return prev + 5
       })
     }, 500)
-
     return interval
   }
 
-  return (
-    <Dropzone
-    multiple={true}
-    onDrop={async (acceptedFiles) => {
-       setIsUploading(true)
-       const progressInterval = startSimulatedProgress()
-  
-      // // ✅ Generate fileGroupId once
-       const fileGroupId = cuid()
+  const handleDrop = async (files: File[]) => {
+    setIsUploading(true)
+    setAcceptedFiles(files)
 
-       const res = await startUpload(
-         acceptedFiles
-       );
-       console.log(res)
- 
-      if (!res || res.length === 0) {
-        clearInterval(progressInterval)
-        return toast.error("Something went wrong - no res", {
-          description: 'Please try again later',
-        })
-      }
-  
-      // Start polling for each uploaded file
-      for (const fileResponse of res) {
-        const key = fileResponse?.key
-        if (key) {
-          startPolling({ key, fileGroupId })
-        }
-      }
+    const progressInterval = startSimulatedProgress()
+    const fileGroupId = cuid()
+    const res = await startUpload(files)
 
+    if (!res || res.length === 0) {
+      clearInterval(progressInterval)
+      setIsUploading(false)
+      return toast.error("cannot upload this file", {
+        description: 'File type not supported or file too large',
+      })
+    }
 
-      clearInterval(progressInterval);
-      setUploadProgress(100);
-      router.push(`/dashboard/${fileGroupId}`);
-    }}
-  >
-    {({ getRootProps, getInputProps, acceptedFiles }) => (
-      <div
-        {...getRootProps()}
-        className='border h-64 m-4 border-dashed border-gray-300 rounded-lg'
-      >
-        <div className='flex items-center justify-center h-full w-full'>
-          <label
-            htmlFor='dropzone-file'
-            className='flex flex-col items-center justify-center w-full h-full rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100'
-          >
-            <div className='flex flex-col items-center justify-center pt-5 pb-6'>
-              <Cloud className='h-6 w-6 text-zinc-500 mb-2' />
-              <p className='mb-2 text-sm text-zinc-700'>
-                <span className='font-semibold'>Click to upload</span>{' '}
-                or drag and drop
-              </p>
-              <p className='text-xs text-zinc-500'>
-                PDFs (up to {isSubscribed ? "32" : "4"}MB per file)
-              </p>
-            </div>
-  
-            {acceptedFiles.length > 0 && (
-              <div className="w-full px-4 space-y-2 flex flex-col items-center justify-center ">
-                {acceptedFiles.map((file, i) => (
-                  <div
-                    key={i}
-                    className='max-w-xs bg-white flex items-center rounded-md overflow-hidden outline outline-[1px] outline-zinc-200 divide-x divide-zinc-200'
-                  >
-                    <div className='px-3 py-2 h-full grid place-items-center'>
-                      <File className='h-4 w-4 text-blue-500' />
-                    </div>
-                    <div className='px-3 py-2 h-full text-sm truncate'>
-                      {file.name}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-  
-            {isUploading && (
-              <div className='w-full mt-4 max-w-xs mx-auto'>
-                <Progress
-                  value={uploadProgress}
-                  className="h-1 w-full bg-zinc-200"
-                  style={{
-                    backgroundColor: uploadProgress === 100 ? 'green' : undefined,
-                  }}
-                />
-                {uploadProgress === 100 && (
-                  <div className='flex gap-1 items-center justify-center text-sm text-zinc-700 text-center pt-2'>
-                    <Loader2 className='h-3 w-3 animate-spin' />
-                    Redirecting...
-                  </div>
-                )}
-              </div>
-            )}
-  
-            <input
-              {...getInputProps()}
-              type='file'
-              id='dropzone-file'
-              className='hidden'
-              multiple
-            />
-          </label>
-        </div>
-      </div>
-    )}
-  </Dropzone>
-  
-  )
-}
+    for (const fileResponse of res) {
+      const key = fileResponse?.key
+      if (key) startPolling({ key, fileGroupId })
+    }
 
-const UploadButton = ({
-  isSubscribed
-}: {
-  isSubscribed: boolean
-}) => {
-  const [isOpen, setIsOpen] = useState<boolean>(false)
+    clearInterval(progressInterval)
+    setUploadProgress(100)
+    router.push(`/dashboard/${fileGroupId}`)
+  }
 
   return (
-    <Dialog
-      open={isOpen}
-      onOpenChange={(v) => {
-        if (!v) {
-          setIsOpen(v)
-        }
-      }}>
-      <DialogTrigger
-        onClick={() => setIsOpen(true)}
-        asChild>
-        <Button>Upload PDF</Button>
+    <Dialog open={isOpen} onOpenChange={setIsOpen}>
+      <DialogTrigger asChild>
+        <Button 
+              size="lg"
+              className="bg-gradient-to-r from-indigo-600 to-teal-500 hover:from-indigo-500 hover:to-teal-400 text-white rounded-full shadow-lg shadow-indigo-500/20 hover:shadow-indigo-500/40 transition-all duration-300"
+              onClick={() => setIsOpen(true)}            >
+              <Upload className="mr-2 h-5 w-5" />
+              Upload Document
+            </Button>
       </DialogTrigger>
 
-      <DialogContent>
-        <UploadDropzone isSubscribed={isSubscribed} />
+      <DialogContent className="sm:max-w-[600px] bg-slate-900 border-slate-800">
+        <DialogHeader>
+          <DialogTitle className="text-xl font-space-grotesk">Upload Document</DialogTitle>
+        </DialogHeader>
+
+        <Dropzone
+          multiple
+          onDrop={handleDrop}
+          onDragEnter={() => setIsDragging(true)}
+          onDragLeave={() => setIsDragging(false)}
+        >
+          {({ getRootProps, getInputProps }) => (
+            <div
+              {...getRootProps()}
+              className={cn(
+                "mt-4 border-2 border-dashed rounded-xl p-8 transition-all duration-200 ease-in-out cursor-pointer",
+                isDragging
+                  ? "border-indigo-500 bg-indigo-500/10"
+                  : "border-slate-700 hover:border-slate-600"
+              )}
+            >
+              <input {...getInputProps()} />
+              <div className="flex flex-col items-center justify-center text-center">
+                <div className={cn(
+                  "w-16 h-16 rounded-full flex items-center justify-center mb-4",
+                  "bg-gradient-to-br from-indigo-500/20 to-teal-500/20",
+                  isDragging && "animate-pulse"
+                )}>
+                  <Upload className={cn("h-8 w-8", isDragging ? "text-indigo-400" : "text-slate-400")} />
+                </div>
+
+                <h3 className="text-lg font-medium text-white mb-2">
+                  {isDragging ? "Drop your file here" : "Upload your document"}
+                </h3>
+                <p className="text-slate-400 text-sm mb-4">
+                  Drag and drop your file here, or click to browse
+                </p>
+                <div className="text-sm text-slate-500">
+                  Supported formats: PDF, DOCX, TXT, CSV, XLSX
+                </div>
+              </div>
+            </div>
+          )}
+        </Dropzone>
+
+        {acceptedFiles.length > 0 && (
+          <div className="mt-4 grid gap-2">
+            {acceptedFiles.map((file, i) => (
+              <div key={i} className="bg-slate-800/50 px-3 py-2 rounded flex items-center gap-2 text-white">
+                <File className="h-4 w-4 text-blue-400" />
+                <span className="truncate text-sm">{file.name}</span>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {isUploading && (
+          <div className="mt-4">
+            <Progress
+              value={uploadProgress}
+              className="h-1 bg-zinc-700"
+              style={{ backgroundColor: uploadProgress === 100 ? 'green' : undefined }}
+            />
+            {uploadProgress === 100 && (
+              <div className="flex gap-1 items-center justify-center text-sm text-slate-300 pt-2">
+                <Loader2 className="h-3 w-3 animate-spin" />
+                Redirecting...
+              </div>
+            )}
+          </div>
+        )}
+
+        <div className="mt-6 bg-slate-800/50 rounded-lg p-4">
+          <h4 className="text-sm font-medium text-white mb-2">Tips for best results:</h4>
+          <ul className="text-sm text-slate-400 space-y-1">
+            <li>• Files should be under {isSubscribed ? "32" : "4"}MB</li>
+            <li>• Text should be clear and legible</li>
+            <li>• Scanned documents should be high quality</li>
+          </ul>
+        </div>
       </DialogContent>
     </Dialog>
   )
 }
 
-export default UploadButton
+export default UploadDialog

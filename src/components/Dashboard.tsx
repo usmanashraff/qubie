@@ -1,10 +1,15 @@
-'use client'
+"use client"
+
+import React, { useState } from "react"
+import { Upload, FileText, MessageSquare, Trash2, Search, Filter } from "lucide-react"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { motion } from "@/lib/motion"
 
 import { trpc } from '@/app/_trpc/client'
 import {
   Ghost,
   Loader2,
-  MessageSquare,
   Plus,
   Trash,
   Pencil, // Import Pencil icon
@@ -12,8 +17,6 @@ import {
 import Skeleton from 'react-loading-skeleton'
 import Link from 'next/link'
 import { format } from 'date-fns'
-import { Button } from './ui/button'
-import { useState } from 'react'
 import UploadButton from './UploadButton'
 import { getUserSubscriptionPlan } from '@/lib/stripe'
 
@@ -21,11 +24,10 @@ interface PageProps {
   subscriptionPlan: Awaited<ReturnType<typeof getUserSubscriptionPlan>>
 }
 
-const Dashboard = ({ subscriptionPlan }: PageProps) => {
+export default function DashboardPage({ subscriptionPlan }: PageProps) {
   const [currentlyDeletingFile, setCurrentlyDeletingFile] = useState<string | null>(null)
   const [editingId, setEditingId] = useState<string | null>(null)
   const [newName, setNewName] = useState('')
-
   const utils = trpc.useContext()
 
   const { data: files, isLoading } = trpc.getUserFiles.useQuery()
@@ -49,145 +51,209 @@ const Dashboard = ({ subscriptionPlan }: PageProps) => {
       setNewName('')
     },
   })
-
   return (
-    <main className='mx-auto max-w-7xl md:p-10'>
-      <div className='mt-8 flex flex-col items-start justify-between gap-4 border-b border-gray-200 pb-5 sm:flex-row sm:items-center sm:gap-0'>
-        <h1 className='mb-3 font-bold text-5xl text-gray-900'>
-          My Files
-        </h1>
+    <div className="min-h-screen bg-gradient-to-b from-slate-900 to-slate-950 pt-16 ">
+      {/* Hero section with stats */}
+      <div className="bg-gradient-to-b from-slate-800/50 to-transparent border-b border-slate-700/50 backdrop-blur-sm">
+        <div className="container py-8">
+          <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+            <div>
+              <h1 className="text-3xl font-bold text-white font-space-grotesk mb-2">Document Hub</h1>
+              <p className="text-slate-400">Your AI-powered document workspace</p>
+            </div>
+           
+                    <UploadButton isSubscribed={subscriptionPlan.isSubscribed} />
+          </div>
 
-        <UploadButton isSubscribed={subscriptionPlan.isSubscribed} />
+          {/* <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+            <div className="bg-slate-800/30 backdrop-blur-sm rounded-xl p-4 border border-slate-700/50">
+              <p className="text-slate-400 text-sm mb-1">Total Documents</p>
+              <p className="text-2xl font-bold text-white">24</p>
+            </div>
+            <div className="bg-slate-800/30 backdrop-blur-sm rounded-xl p-4 border border-slate-700/50">
+              <p className="text-slate-400 text-sm mb-1">Active Conversations</p>
+              <p className="text-2xl font-bold text-white">12</p>
+            </div>
+            <div className="bg-slate-800/30 backdrop-blur-sm rounded-xl p-4 border border-slate-700/50">
+              <p className="text-slate-400 text-sm mb-1">Total Messages</p>
+              <p className="text-2xl font-bold text-white">156</p>
+            </div>
+          </div> */}
+        </div>
       </div>
 
-      {/* Display files */}
-      {files && files?.length !== 0 ? (
-        <ul className='mt-8 grid grid-cols-1 gap-6 divide-y divide-zinc-200 md:grid-cols-2 lg:grid-cols-3'>
-          {files
-            .sort(
-              (a, b) =>
-                new Date(b.createdAt).getTime() -
-                new Date(a.createdAt).getTime()
-            )
-            .map((file) => (
-              <li
-              key={file.id}
-              className='col-span-1 divide-y divide-gray-200 rounded-lg bg-white shadow transition hover:shadow-lg'>
-              <div className='pt-6 px-6 flex w-full items-center justify-between space-x-6'>
-                {/* Left side (file icon and name) */}
-                <div className='flex-1 flex items-center gap-4'>
-                  <Link
-                    href={editingId === file.id ? '#' : `/dashboard/${file.id}`}
-                    className='flex items-center gap-4 flex-1'>
-                    <div className='h-10 w-10 flex-shrink-0 rounded-full bg-gradient-to-r from-cyan-500 to-blue-500' />
-                    {editingId === file.id ? (
-                      <input
-                        type="text"
-                        value={newName}
-                        onChange={(e) => setNewName(e.target.value)}
-                        onKeyDown={(e) => {
-                          if (e.key === 'Enter') {
-                            updateFile({ id: file.id, name: newName })
-                          }
-                        }}
-                        className="w-full truncate text-lg font-medium text-zinc-900 border rounded px-2 py-1"
-                      />
-                    ) : (
-                      <h3 className='truncate text-lg font-medium text-zinc-900'>
-                        {file.name}
-                      </h3>
-                    )}
-                  </Link>
+      <div className="container">
+        {/* Search and filter */}
+        {/* <div className="flex flex-col md:flex-row gap-4 mb-8">
+          <div className="relative flex-1">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-slate-400" />
+            <Input 
+              placeholder="Search conversations..." 
+              className="pl-10 bg-slate-800/30 border-slate-700/50 text-white placeholder:text-slate-500 w-full"
+            />
+          </div>
+          <Button variant="outline" className="border-slate-700 text-slate-300">
+            <Filter className="mr-2 h-4 w-4" />
+            Filter
+          </Button>
+        </div> */}
 
-                  {/* Edit controls moved outside the Link */}
-                  <div className="flex items-center gap-2">
-                    {editingId === file.id ? (
-                      <>
-                        <Button
-                          onClick={() => updateFile({ id: file.id, name: newName })}
-                          disabled={isUpdating}
-                          size="sm"
-                          variant="default"
-                        >
-                          {isUpdating ? (
-                            <Loader2 className="h-4 w-4 animate-spin" />
-                          ) : (
-                            'Save'
-                          )}
-                        </Button>
-                        <Button
-                          onClick={() => {
-                            setEditingId(null)
-                            setNewName('')
-                          }}
-                          size="sm"
-                          variant="outline"
-                        >
-                          Cancel
-                        </Button>
-                      </>
-                    ) : (
-                      <Button
-                        onClick={(e) => {
-                          e.stopPropagation()
-                          setEditingId(file.id)
-                          setNewName(file.name)
-                        }}
-                        variant="ghost"
-                        size="icon"
-                      >
-                        <Pencil className="h-4 w-4" />
-                      </Button>
-                    )}
-                  </div>
-                </div>
+        {/* Conversations grid */}
+        <div className="grid gap-4">
+        {files && files.length > 0 && (
+  <div className="mt-8 grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+    {files
+      .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+      .map((file, index) => (
+        <motion.div
+          key={file.id}
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3, delay: index * 0.1 }}
+          className="group bg-gradient-to-r from-slate-800/50 to-slate-800/30 backdrop-blur-sm border border-slate-700/50 rounded-xl p-6 hover:bg-slate-800/70 transition-all duration-300 cursor-pointer"
+        >
+          <div className="flex items-start justify-between">
+            {/* Left side: icon + name/edit input */}
+            <div className="flex items-start space-x-4 flex-1">
+              <div className="h-12 w-12 rounded-xl bg-gradient-to-br from-indigo-500/20 to-teal-500/20 flex items-center justify-center">
+              <MessageSquare className="h-6 w-6 text-teal-400" />
+
               </div>
 
-                {/* Rest of the file details */}
-                <div className='px-6 mt-4 grid grid-cols-3 place-items-center py-2 gap-6 text-xs text-zinc-500'>
-                  <div className='flex items-center gap-2'>
-                    <Plus className='h-4 w-4' />
-                    {format(
-                      new Date(file.createdAt),
-                      'MMM yyyy'
-                    )}
-                  </div>
+              <div className="flex-1">
+                <Link
+                  href={editingId === file.id ? "#" : `/dashboard/${file.id}`}
+                  className="block"
+                >
+                  {editingId === file.id ? (
+                    <input
+                      type="text"
+                      value={newName}
+                      onChange={(e) => setNewName(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter") {
+                          updateFile({ id: file.id, name: newName });
+                        }
+                      }}
+                      className="w-full truncate text-lg font-medium text-white bg-transparent border-b border-slate-400 focus:outline-none"
+                    />
+                  ) : (
+                    <h3 className="text-lg font-medium text-white group-hover:text-indigo-400 transition-colors">
+                      {file.name}
+                    </h3>
+                  )}
+                </Link>
 
-                  <div className='flex items-center gap-2'>
-                    <MessageSquare className='h-4 w-4' />
+                <div className="flex items-center gap-4 mt-3 text-sm text-slate-400">
+                  <span>{format(new Date(file.createdAt), "MMM yyyy")}</span>
+                  <span className="flex items-center">
+                    <MessageSquare className="h-3 w-3 mr-1" />
                     mocked
-                  </div>
+                  </span>
+                </div>
+              </div>
+            </div>
 
+            {/* Right side: edit/delete buttons */}
+            <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+              {editingId === file.id ? (
+                <>
                   <Button
-                    onClick={() =>
-                      deleteFile({ id: file.id })
-                    }
-                    size='sm'
-                    className='w-full'
-                    variant='destructive'>
-                    {currentlyDeletingFile === file.id ? (
-                      <Loader2 className='h-4 w-4 animate-spin' />
+                    onClick={() => updateFile({ id: file.id, name: newName })}
+                    disabled={isUpdating}
+                    size="sm"
+                    variant="default"
+                  >
+                    {isUpdating ? (
+                      <Loader2 className="h-4 w-4 animate-spin" />
                     ) : (
-                      <Trash className='h-4 w-4' />
+                      "Save"
                     )}
                   </Button>
-                </div>
-              </li>
-            ))}
-        </ul>
-      ) : isLoading ? (
-        <Skeleton height={100} className='my-2' count={3} />
-      ) : (
-        <div className='mt-16 flex flex-col items-center gap-2'>
-          <Ghost className='h-8 w-8 text-zinc-800' />
-          <h3 className='font-semibold text-xl'>
-            Pretty empty around here
-          </h3>
-          <p>Let&apos;s upload your first PDF.</p>
+                  <Button
+                    onClick={() => {
+                      setEditingId(null);
+                      setNewName("");
+                    }}
+                    size="sm"
+                    variant="outline"
+                  >
+                    Cancel
+                  </Button>
+                </>
+              ) : (
+                <>
+                  <Button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setEditingId(file.id);
+                      setNewName(file.name);
+                    }}
+                    variant="ghost"
+                    // className="bg-transparent"                    size="icon"
+                  >
+                    <Pencil className="h-4 w-4 text-slate-300 hover:text-white hover:bg-transparent" />
+                  </Button>
+                  <Button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      deleteFile({ id: file.id });
+                    }}
+                    variant="ghost"
+                    // className="bg-transparent"                    size="icon"
+
+                  >
+                     {currentlyDeletingFile === file.id ? (
+                      <Loader2 className='h-4 w-4 animate-spin' />
+                    ) : (
+                      <Trash className="h-5 w-5 text-slate-300 hover:text-red-400" />
+                    )}
+                  </Button>
+                </>
+              )}
+            </div>
+          </div>
+        </motion.div>
+      ))}
+  </div>
+)}
+         
         </div>
-      )}
-    </main>
+
+        {isLoading ? (
+      <div className="space-y-4 mt-4">
+      {[...Array(3)].map((_, idx) => (
+        <div
+          key={idx}
+          className="animate-pulse bg-gradient-to-r from-slate-800/50 to-slate-800/30 backdrop-blur-sm border border-slate-700/50 rounded-xl p-6"
+        >
+          <div className="flex items-start space-x-4">
+            <div className="h-12 w-12 rounded-xl bg-slate-700" />
+            <div className="flex-1 space-y-2">
+              <div className="h-4 bg-slate-700 rounded w-3/4" />
+              <div className="h-3 bg-slate-700 rounded w-1/2" />
+              <div className="flex gap-4 mt-3">
+                <div className="h-3 bg-slate-700 rounded w-1/4" />
+                <div className="h-3 bg-slate-700 rounded w-1/4" />
+              </div>
+            </div>
+          </div>
+        </div>
+      ))}
+      </div>        ):(
+          null
+        )}
+
+        {!isLoading && files?.length == 0 && (
+          <div className="text-center py-12">
+          <div className="bg-slate-800/30 backdrop-blur-sm rounded-xl p-8 max-w-md mx-auto">
+            <FileText className="h-12 w-12 text-slate-500 mx-auto mb-4" />
+            <p className="text-slate-300 text-lg mb-2">No conversations yet</p>
+            <p className="text-slate-400">Upload a document to get started with AI-powered conversations.</p>
+          </div>
+        </div>
+        )}
+      </div>
+    </div>
   )
 }
-
-export default Dashboard
