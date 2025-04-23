@@ -3,7 +3,9 @@ import { getKindeServerSession } from "@kinde-oss/kinde-auth-nextjs/server";
 import { createUploadthing, type FileRouter } from "uploadthing/next";
 import { PDFLoader } from "@langchain/community/document_loaders/fs/pdf";
 import { getPineconClient } from "@/lib/pinecone";
-import { VertexAIEmbeddings } from "@langchain/google-vertexai";
+import { GoogleGenerativeAIEmbeddings } from "@langchain/google-genai";
+import { TaskType } from "@google/generative-ai";
+
 import { PineconeStore } from "@langchain/pinecone";
 import { getUserSubscriptionPlan } from "@/lib/stripe";
 import { PLANS } from "@/config/stripe";
@@ -193,8 +195,10 @@ const onUploadComplete = async ({
 
     const pinecone = await getPineconClient();
     const pineconeIndex = pinecone.Index("qubie");
-    const embeddings = new VertexAIEmbeddings({
-      model: "textembedding-gecko@latest",
+    const embeddings = new GoogleGenerativeAIEmbeddings({
+      model: "text-embedding-004", // 768 dimensions
+      taskType: TaskType.RETRIEVAL_DOCUMENT,
+      title: file.name,
     });
 
     await PineconeStore.fromDocuments(pageLevelDocs, embeddings, {

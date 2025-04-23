@@ -1,4 +1,3 @@
-import { ChatVertexAI } from "@langchain/google-vertexai";
 // Or, if using the web entrypoint:
 // import { ChatVertexAI } from "@langchain/google-vertexai-web";
 import dotenv from 'dotenv';
@@ -6,16 +5,22 @@ import dotenv from 'dotenv';
 
 // Load environment variables
 dotenv.config({ path: '.env' });
-const model = new ChatVertexAI({
-  temperature: 0.7,
-  model: "gemini-1.0-pro",
+import { ChatGoogleGenerativeAI } from "@langchain/google-genai";
+
+const llm = new ChatGoogleGenerativeAI({
+  model: "gemini-1.5-pro",
+  temperature: 0,
+  maxRetries: 2,
+  // other params...
 });
 
-const stream = await model.stream([
-    ["system", "You are a funny assistant that answers in pirate language."],
-    ["human", "What is your favorite food?"],
-  ]);
+const aiMsg = await llm.invoke([
+  [
+    "system",
+    "You are a helpful assistant that translates English to French. Translate the user sentence.",
+  ],
+  ["human", "My name is usman ashraf."],
+]);
+aiMsg;
   
-  for await (const chunk of stream) {
-    console.log(chunk.content);
-  }
+  console.log(aiMsg.content);

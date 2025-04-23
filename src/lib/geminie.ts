@@ -1,8 +1,11 @@
-import { ChatVertexAI } from "@langchain/google-vertexai";
-// Or, if using the web entrypoint:
-// import { ChatVertexAI } from "@langchain/google-vertexai-web";
+import { GoogleGenerativeAI } from '@google/generative-ai';
 
-export const model = new ChatVertexAI({
-  model: "gemini-1.0-pro",
-  maxOutputTokens: 2048,
+// Initialize Google AI client
+const genAI = new GoogleGenerativeAI(process.env.GOOGLE_API_KEY!);
+export const model = genAI.getGenerativeModel({ 
+  model: "gemini-1.5-pro",
+  generationConfig: {
+    temperature: 0,
+    maxOutputTokens: 8192 ,
+  },
 });

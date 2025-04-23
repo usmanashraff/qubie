@@ -4,10 +4,11 @@ import { PineconeStore } from "@langchain/pinecone";
 import { NextRequest } from 'next/server'
 import { StreamingTextResponse } from 'ai';
 import { SendMessageValidator } from '@/lib/validators/sendMessageValidator'
-import { VertexAIEmbeddings } from '@langchain/google-vertexai'
 import { getPineconClient } from '@/lib/pinecone';
 import { model } from '@/lib/geminie'
-
+import { AIMessageChunk } from '@langchain/core/messages';
+import { GoogleGenerativeAIEmbeddings } from "@langchain/google-genai";
+import { TaskType } from "@google/generative-ai";
 export const POST = async (req: NextRequest) => {
   const body = await req.json()
   const { getUser } = getKindeServerSession()
@@ -36,10 +37,10 @@ export const POST = async (req: NextRequest) => {
     where: { fileGroupId: groupId },
   })
 
-  const embeddings = new VertexAIEmbeddings({
-    model: "textembedding-gecko@latest",
-  })
-
+  const embeddings = new GoogleGenerativeAIEmbeddings({
+    model: "text-embedding-004", // 768 dimensions
+    taskType: TaskType.RETRIEVAL_DOCUMENT,
+  });
   const pc = await getPineconClient()
   const pineconeIndex = pc.index('qubie')
 
@@ -52,11 +53,10 @@ export const POST = async (req: NextRequest) => {
       )
       return {
         fileName: file.name,
-        contexts: await vectorStore.similaritySearch(message, 2)
+        contexts: await vectorStore.similaritySearch(message, 4)
       }
     })
   )
-  console.log("context being sending to llm 😭😭😭😭", fileResults)
 
   const prevMessages = await db.message.findMany({
     where: { fileGroupId: groupId },
@@ -78,96 +78,84 @@ export const POST = async (req: NextRequest) => {
       ${contexts.map((c, i) => `[Context ${i + 1}]: ${c.pageContent}`).join('\n')}
     `
   }).filter(Boolean).join('\n\n')
-
- 
+  console.log("context being sending to llm 😭😭😭😭", contextBlocks)
 
   const systemPrompt = `
-You are a professional cross-domain document analyst working with these files:
-${files.map(f => f.name).join(', ')}.
-
-**Core Directive**: Never provide information beyond what's explicitly requested.
-
-**Strict Guidelines** (in priority order):
-1. NO SUMMARY RULE: Never summarize or analyze unless directly asked. 
-   - If user says "thank you" → "You're welcome"
-   - If user asks non-document question → "Would you like me to analyze the documents?"
-   
-2. Question Strictness: Respond ONLY to direct questions about document content
-   - No assumptions • No inferences • No connections unless explicitly requested
-
-3. Source Discipline:
-   - Always cite exact filename(s) in brackets like [FinancialReport.pdf]
-   - Never reference uncited documents
-
-4. Domain Isolation:
-   - Keep domains completely separate unless user says "compare" or "connect"
-   - If domains conflict: "Document A shows X [File1], while Document B suggests Y [File2]"
-
-5. Response Structure:
-   - Use bullet points ONLY when user says "list" or "bullets"
-   - Default to 1-3 sentence responses
-   - Never use markdown unless explicitly requested
-`;
-
-const humanPrompt = `
-User Question: ${message}
-
-Document Context (DO NOT SUMMARIZE):
-${contextBlocks}
-
-Conversation History (Last 3 exchanges):
-${formattedPrevMessages.slice(-3).map(m => `${m.role}: ${m.content}`).join('\n')}
-
-Response Requirements:
-${message.toLowerCase().includes('thank') ? 'Simple acknowledgement' : 
-message.includes('?') ? 'Direct answer with exact quotes from relevant documents' : 
-'Ask clarifying question'}
-`;
-    const messageStream = await model.stream([
-      ["system", systemPrompt],
-      ["human", humanPrompt],
-    ]);
-
-  const stream = new ReadableStream({
-    async start(controller) {
-      let fullResponse = ''
-      
-      try {
-        for await (const chunk of await messageStream) {
-          const content = chunk.content
-          let textChunk = ''
-
-          if (typeof content === 'string') {
-            textChunk = content
-          } else {
-            for (const part of content) {
-              if (typeof part === 'object' && 'type' in part && part.type === 'text') {
-                textChunk += part.text
-              }
-            }
-          }
-
-          if (textChunk) {
-            controller.enqueue(new TextEncoder().encode(textChunk))
-            fullResponse += textChunk
-          }
-        }
-
-        await db.message.create({
-          data: {
-            text: fullResponse,
-            isUserMessage: false,
-            fileGroupId: groupId,
-            userId,
-          },
-        })
-      } catch (error) {
-        console.error('Stream error:', error)
-        controller.error(error)
-      } finally {
-        controller.close()
-      }
+     You are a professional cross-domain document analyst. Analyze information from these files which may cover completely different subjects:
+     ${files.map(f => f.name).join(', ')}.
+ 
+     Important Guidelines:
+     Don't do sumarize or do anything until user asked. if user say thank you then only say welcome.
+     0. only consider the user question for the response if conversation history does not relate to the message. 
+     1. Preserve the original context and domain-specific meaning of each document
+     2. Never merge concepts from different domains unless explicitly requested
+     3. Clearly indicate source documents using their filenames
+     4. Acknowledge conflicting perspectives between documents
+     5. if user ask something which is related to only one or two document - dont consider and specify other documents in response
+     6. most important thing is to keep the response as short as possible. don't explain exra things that user has not asked.`
+ 
+     ;
+ 
+     const humanPrompt = `
+     USER QUESTION: ${message}
+ 
+     DOCUMENT CONTEXT:
+     ${contextBlocks}
+ 
+     CONVERSATION HISTORY:
+     ${formattedPrevMessages.map(m => `- ${m.role.toUpperCase()}: ${m.content}`).join('\n')}
+ 
+     RESPONSE REQUIREMENTS:
+     1. Use markdown formatting with clear section headers
+     2. If documents conflict:
+       - "Document A suggests... while Document B states..."
+       - "These perspectives differ because..."
+     3. If unrelated domains:
+       - "Regarding financial aspects..." 
+       - "In the spiritual context..."
+       - "These concepts appear unrelated but respectively..."`
+     ;
+ 
+ 
+const chatSession = model.startChat({
+  history: [
+    {
+      role: "user",
+      parts: [{ text: systemPrompt }],
     },
-  })
+  ],
+});
+
+const result = await chatSession.sendMessageStream(humanPrompt);
+
+const stream = new ReadableStream({
+  async start(controller) {
+    let fullResponse = '';
+    
+    try {
+      // Process each chunk from the stream
+      for await (const chunk of result.stream) {
+        const textChunk = chunk.text();
+        controller.enqueue(new TextEncoder().encode(textChunk));
+        fullResponse += textChunk;
+      }
+
+      // Save final message
+      await db.message.create({
+        data: {
+          text: fullResponse,
+          isUserMessage: false,
+          fileGroupId: groupId,
+          userId,
+        },
+      });
+    } catch (error) {
+      console.error('Stream error:', error);
+      controller.error(error);
+    } finally {
+      controller.close();
+    }
+  },
+});
   return new StreamingTextResponse(stream)
 }
