@@ -6,7 +6,6 @@ import { StreamingTextResponse } from 'ai';
 import { SendMessageValidator } from '@/lib/validators/sendMessageValidator'
 import { getPineconClient } from '@/lib/pinecone';
 import { model } from '@/lib/geminie'
-import { AIMessageChunk } from '@langchain/core/messages';
 import { GoogleGenerativeAIEmbeddings } from "@langchain/google-genai";
 import { TaskType } from "@google/generative-ai";
 export const POST = async (req: NextRequest) => {

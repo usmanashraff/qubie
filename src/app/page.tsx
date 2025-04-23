@@ -1,13 +1,10 @@
-import { ValueProposition } from '@/components/sections/value-proposition'
 import { Hero } from '@/components/sections/hero'
 import { HowItWorks } from '@/components/sections/how-it-works'
 import { WhyQubie } from '@/components/sections/why-qubie'
 import { Features } from '@/components/sections/features'
-import { Security } from '@/components/sections/security'
 import { Testimonials } from '@/components/sections/testimonials'
 import { Pricing } from '@/components/sections/pricing'
 import { FaqSection } from '@/components/sections/faq'
-import { CtaSection } from '@/components/sections/cta'
 import { Footer } from '@/components/sections/footer'
 export default function Home() {
   return (

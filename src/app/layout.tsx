@@ -7,7 +7,6 @@ import 'react-loading-skeleton/dist/skeleton.css'
 import { Toaster } from "@/components/ui/sonner";
 import 'simplebar-react/dist/simplebar.min.css';
 import { Providerss } from './providers'
-import {Navbar} from "@/components/Navbar";
 import { ParentNav } from "@/components/ParentNav";
 
 

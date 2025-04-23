@@ -2,7 +2,7 @@
 
 import React from "react"
 import { motion } from "@/lib/motion"
-import { Sparkles, Files, BookMarked, Puzzle } from "lucide-react"
+import { Sparkles, Files, BookMarked } from "lucide-react"
 import { cn } from "@/lib/utils"
 
 const features = [

@@ -3,7 +3,6 @@
 import * as React from "react"
 import Link from "next/link"
 import { cn } from "@/lib/utils"
-import { Button } from "@/components/ui/button"
 import {
   NavigationMenu,
   NavigationMenuContent,
@@ -13,7 +12,7 @@ import {
   NavigationMenuTrigger,
   navigationMenuTriggerStyle,
 } from "@/components/ui/navigation-menu"
-import { Monitor, Bot, Sparkles, ShieldCheck, Users } from "lucide-react"
+import { Monitor, Bot, Sparkles, Users } from "lucide-react"
 
 export function Navbar() {
 
@@ -35,7 +34,7 @@ export function Navbar() {
                 <ul className="grid gap-3 p-6 md:w-[400px] lg:w-[500px] lg:grid-cols-[.75fr_1fr]">
                   <li className="row-span-3">
                     <NavigationMenuLink asChild>
-                      <a
+                      <Link
                         className="flex h-full w-full select-none flex-col justify-end rounded-md bg-gradient-to-b from-slate-800 to-slate-900 p-6 no-underline outline-none focus:shadow-md"
                         href="/"
                       >
@@ -46,7 +45,7 @@ export function Navbar() {
                         <p className="text-sm leading-tight text-white/70">
                           Interact with your documents using advanced AI technology
                         </p>
-                      </a>
+                      </Link>
                     </NavigationMenuLink>
                   </li>
                   <ListItem href="/#features" title="Universal Compatibility" icon={<Monitor className="h-4 w-4 text-teal-400 mr-2" />}>

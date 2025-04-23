@@ -1,20 +1,16 @@
 "use client"
 
 import React, { useState } from "react"
-import { Upload, FileText, MessageSquare, Trash2, Search, Filter } from "lucide-react"
+import { FileText, MessageSquare } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
 import { motion } from "@/lib/motion"
 
 import { trpc } from '@/app/_trpc/client'
 import {
-  Ghost,
   Loader2,
-  Plus,
   Trash,
   Pencil, // Import Pencil icon
 } from 'lucide-react'
-import Skeleton from 'react-loading-skeleton'
 import Link from 'next/link'
 import { format } from 'date-fns'
 import UploadButton from './UploadButton'

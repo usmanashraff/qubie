@@ -7,9 +7,7 @@ import { ChevronLeft, Loader2, XCircle } from 'lucide-react'
 import Link from 'next/link'
 import { buttonVariants } from '../ui/button'
 import { ChatContextProvider } from './ChatContext'
-// import { PLANS } from '@/config/stripe'
-import { MessageCircle } from 'lucide-react';
-
+// import { PLANS } from '@/config/stripe
 
 interface ChatWrapperProps {
   groupId: string
