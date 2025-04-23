@@ -5,7 +5,7 @@ import { motion } from "@/lib/motion"
 import { ChevronLeft, ChevronRight, Star, Play } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
-
+import Image from "next/image"
 const testimonials = [
   {
     quote: "Qubie cut our contract review time by 70%—it's like having a PhD on standby. The ability to ask questions across multiple documents has transformed our legal review process.",
@@ -183,7 +183,7 @@ export function Testimonials() {
               <div className="relative">
                 <div className="aspect-video w-full bg-slate-900 flex items-center justify-center relative overflow-hidden">
                   <div className="absolute inset-0 bg-gradient-to-tr from-indigo-900/20 to-transparent" />
-                  <img 
+                  <Image 
                     src="https://images.pexels.com/photos/3182812/pexels-photo-3182812.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2" 
                     alt="Video thumbnail" 
                     className="w-full h-full object-cover opacity-50"
@@ -229,7 +229,7 @@ function TestimonialCard({ testimonial }: { testimonial: typeof testimonials[0] 
       
       <div className="flex items-center">
         <div className="h-12 w-12 rounded-full overflow-hidden mr-4">
-          <img 
+          <Image
             src={testimonial.avatar} 
             alt={testimonial.author}
             className="h-full w-full object-cover" 
