@@ -44,6 +44,7 @@ export const appRouter = router({
   }),
 
   getUserFiles: privateProcedure.query(async ({ctx}) => {
+    
     const { userId } = ctx
 
     return await db.fileGroup.findMany({
@@ -238,7 +239,7 @@ export const appRouter = router({
       const fileGroup = await db.fileGroup.findFirst({
         where: {
           id: input.id,
-          userId,
+          userId: userId,
         },
       })
 
