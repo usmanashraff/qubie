@@ -1,9 +1,10 @@
 "use client"
 
-import React, { useState } from "react"
+import React, { useState, useEffect } from "react"
 import { FileText, MessageSquare } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { motion } from "@/lib/motion"
+import { toast } from 'sonner'
 
 import { trpc } from '@/app/_trpc/client'
 import {
@@ -27,6 +28,48 @@ export default function DashboardPage({ subscriptionPlan }: PageProps) {
   const utils = trpc.useContext()
 
   const { data: files, isLoading } = trpc.getUserFiles.useQuery()
+
+  // Generate AI names for conversations when component mounts
+  useEffect(() => {
+    const generateNames = async () => {
+      if (!files?.length) return
+      
+      const conversationsNeedingNames = files.filter(file => 
+        /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}/.test(file.name)
+      )
+
+      if (conversationsNeedingNames.length === 0) return
+
+      toast.promise(
+        Promise.all(
+          conversationsNeedingNames.map(async conversation => {
+            const response = await fetch('/api/generate-name', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ groupId: conversation.id })
+            })
+
+            if (!response.ok) {
+              throw new Error(response.status === 429 
+                ? 'Please wait a moment before generating more names'
+                : 'Failed to generate conversation name'
+              )
+            }
+            return response.json()
+          })
+        ).finally(() => {
+          utils.getUserFiles.invalidate()
+        }),
+        {
+          loading: 'Generating conversation names...',
+          success: 'Conversations renamed successfully',
+          error: (err) => err.message
+        }
+      )
+    }
+
+    generateNames()
+  }, [files])
 
   const { mutate: deleteFile } = trpc.deleteFile.useMutation({
     onSuccess: () => {
