@@ -12,6 +12,7 @@
   "dependencies": {
     "@ai-sdk/openai": "^1.1.15",
     "@ai-sdk/svelte": "^1.1.19",
+    "@google-cloud/vertexai": "^1.10.0",
     "@google/generative-ai": "^0.22.0",
     "@hookform/resolvers": "^4.1.2",
     "@kinde-oss/kinde-auth-nextjs": "^2.5.3",
@@ -47,6 +48,7 @@
     "@types/word-extractor": "^1.0.6",
     "@uploadthing/react": "^7.3.0",
     "ai": "^3.1.4",
+    "bluebird": "^3.7.2",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "cuid": "^3.0.0",
@@ -85,6 +87,7 @@
     "zod": "^3.24.2"
   },
   "devDependencies": {
+    "@types/bluebird": "^3.5.42",
     "@types/node": "^20",
     "@types/react": "^18",
     "@types/react-dom": "^18",

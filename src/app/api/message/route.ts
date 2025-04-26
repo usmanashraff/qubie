@@ -5,9 +5,10 @@ import { NextRequest } from 'next/server'
 import { StreamingTextResponse } from 'ai';
 import { SendMessageValidator } from '@/lib/validators/sendMessageValidator'
 import { getPineconClient } from '@/lib/pinecone';
-import { model } from '@/lib/geminie'
+import { chatModel } from '@/lib/geminie'
 import { GoogleGenerativeAIEmbeddings } from "@langchain/google-genai";
 import { TaskType } from "@google/generative-ai";
+
 export const POST = async (req: NextRequest) => {
   const body = await req.json()
   const { getUser } = getKindeServerSession()
@@ -112,11 +113,12 @@ export const POST = async (req: NextRequest) => {
      3. If unrelated domains:
        - "Regarding financial aspects..." 
        - "In the spiritual context..."
-       - "These concepts appear unrelated but respectively..."`
+       - "These concepts appear unrelated but respectively..."
+       -- "at the end of respponse also give citation of all the documents[exact page no.] you have used to answer the question"`
      ;
  
  
-const chatSession = model.startChat({
+const chatSession = chatModel.startChat({
   history: [
     {
       role: "user",

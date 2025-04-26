@@ -196,12 +196,12 @@ const onUploadComplete = async ({
     const pinecone = await getPineconClient();
     const pineconeIndex = pinecone.Index("qubie");
     const embeddings = new GoogleGenerativeAIEmbeddings({
-      model: "text-embedding-004", // 768 dimensions
-      taskType: TaskType.RETRIEVAL_DOCUMENT,
-      title: file.name,
+    model: "text-embedding-004", // 768 dimensions
+    taskType: TaskType.RETRIEVAL_DOCUMENT,
+    title: file.name,
     });
 
-    await PineconeStore.fromDocuments(pageLevelDocs, embeddings, {
+        await PineconeStore.fromDocuments(pageLevelDocs, embeddings, {
       pineconeIndex,
       namespace: createdFile.id,
     });

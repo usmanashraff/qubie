@@ -1,5 +1,5 @@
 import { db } from '@/db'
-import { model } from '@/lib/geminie'
+import { renamingModel } from '@/lib/geminie'
 import { getKindeServerSession } from '@kinde-oss/kinde-auth-nextjs/server'
 import { NextRequest } from 'next/server'
 import { z } from 'zod'
@@ -73,7 +73,7 @@ export const POST = async (req: NextRequest) => {
     const prompt = `Generate a short but descriptive name (maximum 5-6 words) for a conversation/document group that contains the following files: ${fileNames}. The name should reflect the key theme or purpose of these documents. Return ONLY the name, nothing else.`
 
     try {
-      const chatSession = model.startChat({
+      const chatSession = renamingModel.startChat({
         history: [
           {
             role: "user",
