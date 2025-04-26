@@ -12,21 +12,21 @@ const steps = [
     title: "Upload Your Documents",
     description: "Drag and drop your files or select them from cloud storage. Supports PDFs, Word, Excel, PowerPoint, and 20+ other formats.",
     icon: <Upload className="h-6 w-6" />,
-    color: "from-primary to-blue-500 dark:from-indigo-500 dark:to-blue-500"
+    color: "from-primary to-teal-500 dark:from-indigo-500 dark:to-blue-500"
   },
   {
     number: "02",
     title: "Chat With Your Content",
     description: "Ask questions in natural language about your documents. Qubie's AI understands context and relationships between data points.",
     icon: <MessageSquare className="h-6 w-6" />,
-    color: "from-violet-500 to-primary dark:from-violet-500 dark:to-indigo-500"
+    color: "from-primary to-teal-500 dark:from-violet-500 dark:to-indigo-500"
   },
   {
     number: "03",
     title: "Take Action & Collaborate",
     description: "Export insights, share with teammates, or integrate findings into your workflow with our comprehensive API.",
     icon: <Clipboard className="h-6 w-6" />,
-    color: "from-teal-500 to-cyan-500"
+    color: "from-primary to-teal-500 dark:from-teal-500 dark:to-cyan-500"
   }
 ]
 
@@ -40,13 +40,15 @@ export function HowItWorks() {
       <div className="container relative z-10">
         <div className="text-center max-w-3xl mx-auto mb-16">
           <motion.p 
-            className="text-sm font-medium text-primary dark:text-teal-400 mb-3"
+            className="inline-block px-4 py-1.5 bg-gradient-to-r from-primary/10 to-teal-500/10 dark:from-indigo-500/20 dark:to-teal-500/20 backdrop-blur-sm rounded-full mb-3 border border-primary/10 dark:border-indigo-500/20"
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
             viewport={{ once: true }}
           >
-            SIMPLE PROCESS
+            <span className="bg-clip-text text-transparent bg-gradient-to-r from-primary to-teal-500 dark:from-indigo-400 dark:to-teal-400">
+              SIMPLE PROCESS
+            </span>
           </motion.p>
           <motion.h2 
             className="text-3xl md:text-4xl font-bold font-space-grotesk mb-6 text-foreground dark:bg-clip-text dark:text-transparent dark:bg-gradient-to-r dark:from-white dark:to-slate-300"
@@ -106,9 +108,9 @@ function StepItem({ step, index }: { step: typeof steps[0], index: number }) {
         "md:text-right": !isEven,
         "md:items-end": !isEven
       })}>
-        <span className="text-sm font-medium text-primary dark:text-teal-400 mb-2">{step.number}</span>
-        <h3 className="text-2xl font-bold font-space-grotesk mb-4 text-foreground">{step.title}</h3>
-        <p className="text-muted-foreground max-w-md">{step.description}</p>
+        <span className="text-sm font-medium bg-clip-text text-transparent bg-gradient-to-r from-primary to-teal-500 dark:from-indigo-400 dark:to-teal-400 mb-2">{step.number}</span>
+        <h3 className="text-2xl font-bold font-space-grotesk mb-4 text-foreground dark:text-transparent dark:bg-clip-text dark:bg-gradient-to-r dark:from-white dark:to-slate-300">{step.title}</h3>
+        <p className="text-muted-foreground dark:text-slate-400 max-w-md">{step.description}</p>
       </div>
       
       {/* Step visualization */}
@@ -124,7 +126,7 @@ function StepItem({ step, index }: { step: typeof steps[0], index: number }) {
             <div className="h-full w-full p-6 flex flex-col items-center justify-center">
               {/* Step icon with gradient */}
               <div className={cn(
-                "w-16 h-16 rounded-full flex items-center justify-center mb-4",
+                "w-16 h-16 rounded-full flex items-center justify-center mb-4 shadow-lg shadow-primary/20 dark:shadow-indigo-900/20",
                 `bg-gradient-to-r ${step.color}`
               )}>
                 {React.cloneElement(step.icon as React.ReactElement, { className: "h-8 w-8 text-white" })}
@@ -132,17 +134,17 @@ function StepItem({ step, index }: { step: typeof steps[0], index: number }) {
               
               {/* Step-specific visualization */}
               {index === 0 && (
-                <div className="w-full max-w-xs h-24 border-2 border-dashed border-border dark:border-slate-700 rounded-lg flex items-center justify-center mt-4">
-                  <p className="text-muted-foreground text-sm">Drag files here or click to browse</p>
+                <div className="w-full max-w-xs h-24 border-2 border-dashed border-primary/20 dark:border-slate-700 rounded-lg flex items-center justify-center mt-4">
+                  <p className="text-muted-foreground dark:text-slate-400 text-sm">Drag files here or click to browse</p>
                 </div>
               )}
               
               {index === 1 && (
                 <div className="w-full max-w-xs mt-4 space-y-3">
-                  <div className="bg-muted dark:bg-slate-800 rounded-lg p-2 text-foreground dark:text-slate-300 text-sm">
+                  <div className="bg-gradient-to-r from-primary/5 to-teal-500/5 dark:bg-slate-800 rounded-lg p-2 text-foreground dark:text-slate-300 text-sm">
                     What's the main conclusion in section 5?
                   </div>
-                  <div className="bg-gradient-to-r from-primary/20 to-teal-500/20 dark:from-indigo-500/20 dark:to-teal-500/20 rounded-lg p-2 text-foreground dark:text-white text-sm ml-auto">
+                  <div className="bg-gradient-to-r from-primary/10 to-teal-500/10 dark:from-indigo-500/20 dark:to-teal-500/20 rounded-lg p-2 text-foreground dark:text-white text-sm ml-auto">
                     Section 5 concludes that renewable energy adoption increased 32% in Q2...
                   </div>
                 </div>
@@ -150,10 +152,10 @@ function StepItem({ step, index }: { step: typeof steps[0], index: number }) {
               
               {index === 2 && (
                 <div className="w-full max-w-xs mt-4 flex flex-wrap gap-2 justify-center">
-                  <div className="px-3 py-1 bg-muted dark:bg-slate-800 rounded-full text-xs text-muted-foreground dark:text-slate-300">Export PDF</div>
-                  <div className="px-3 py-1 bg-muted dark:bg-slate-800 rounded-full text-xs text-muted-foreground dark:text-slate-300">Share</div>
-                  <div className="px-3 py-1 bg-muted dark:bg-slate-800 rounded-full text-xs text-muted-foreground dark:text-slate-300">Slack</div>
-                  <div className="px-3 py-1 bg-muted dark:bg-slate-800 rounded-full text-xs text-muted-foreground dark:text-slate-300">Notion</div>
+                  <div className="px-3 py-1 bg-gradient-to-r from-primary/5 to-teal-500/5 dark:bg-slate-800 rounded-full text-xs text-foreground dark:text-slate-300">Export PDF</div>
+                  <div className="px-3 py-1 bg-gradient-to-r from-primary/5 to-teal-500/5 dark:bg-slate-800 rounded-full text-xs text-foreground dark:text-slate-300">Share</div>
+                  <div className="px-3 py-1 bg-gradient-to-r from-primary/5 to-teal-500/5 dark:bg-slate-800 rounded-full text-xs text-foreground dark:text-slate-300">Slack</div>
+                  <div className="px-3 py-1 bg-gradient-to-r from-primary/5 to-teal-500/5 dark:bg-slate-800 rounded-full text-xs text-foreground dark:text-slate-300">Notion</div>
                 </div>
               )}
             </div>
@@ -163,8 +165,8 @@ function StepItem({ step, index }: { step: typeof steps[0], index: number }) {
         {/* Step number marker for md screens */}
         <div className={cn(
           "hidden md:flex absolute z-20 w-12 h-12 rounded-full bg-background dark:bg-slate-900 border-4",
-          "items-center justify-center font-bold text-foreground dark:text-white",
-          "border-primary dark:border-indigo-500", {
+          "items-center justify-center font-bold text-transparent bg-clip-text bg-gradient-to-r from-primary to-teal-500 dark:text-white",
+          "border-primary dark:border-indigo-500 shadow-lg shadow-primary/20 dark:shadow-indigo-900/20", {
             "left-0 top-1/2 -translate-x-1/2 -translate-y-1/2": isEven,
             "right-0 top-1/2 translate-x-1/2 -translate-y-1/2": !isEven,
           }

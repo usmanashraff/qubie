@@ -11,9 +11,9 @@ export default function Home() {
     <main className="min-h-screen bg-gradient-to-b from-background to-slate-950 w-full">
     <Hero />
     <Features />
-     <HowItWorks />
-     <WhyQubie />
-     <Testimonials />
+    <HowItWorks />
+    <WhyQubie />
+    <Testimonials />
    <Pricing />
    <FaqSection />
     <Footer /> 

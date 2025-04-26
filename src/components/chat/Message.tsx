@@ -5,6 +5,7 @@ import { Icons } from '../Icons'
 import ReactMarkdown from 'react-markdown'
 import { format } from 'date-fns'
 import { forwardRef } from 'react'
+import { Bot,  } from "lucide-react"
 
 interface MessageProps {
   message: ExtendedMessage
@@ -23,17 +24,21 @@ const Message = forwardRef<HTMLDivElement, MessageProps>(
           className={cn(
             'relative flex h-6 w-6 aspect-square items-center justify-center',
             {
-              'order-2 bg-slate-800 rounded-sm':
+              'order-2 bg-slate-100 dark:bg-slate-800 rounded-sm':
                 message.isUserMessage,
-              'order-1 bg-gradient-to-b from-slate-800 to-slate-950 rounded-sm':
+              'order-1 bg-gradient-to-b from-indigo-500 to-teal-500 dark:from-slate-800 dark:to-slate-950 rounded-sm':
                 !message.isUserMessage,
               invisible: isNextMessageSamePerson,
             }
           )}>
           {message.isUserMessage ? (
-            <Icons.user className='fill-zinc-200 text-zinc-200 h-3/4 w-3/4' />
-          ) : (
-            <Icons.logo className='fill-zinc-300 h-3/4 w-3/4' />
+                <div className="h-8 w-8 rounded-full bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 flex items-center justify-center flex-shrink-0">
+                  <div className="h-4 w-4 rounded-full bg-gradient-to-r from-indigo-400 to-teal-400" />
+                </div>
+                ) : (
+              <div className="h-8 w-8 rounded-full bg-gradient-to-r from-indigo-500 to-teal-500 flex items-center justify-center flex-shrink-0">
+                  <Bot className="h-5 w-5 text-white" />
+                </div>          
           )}
         </div>
 
@@ -49,16 +54,16 @@ const Message = forwardRef<HTMLDivElement, MessageProps>(
             className={cn(
               'px-4 py-2 rounded-lg inline-block',
               {
-                'bg-slate-900 text-zinc-100': message.isUserMessage,
-                'bg-gradient-to-r from-indigo-500/20 to-teal-500/20 text-zinc-100': !message.isUserMessage,
+                'bg-gradient-to-r from-indigo-500/10 to-teal-500/10 dark:from-indigo-500/20 dark:to-teal-500/20 ml-auto text-gray-800 dark:text-zinc-100 rounded-3xl': message.isUserMessage,
+                'bg-gray-100/90 dark:bg-slate-800/50 text-gray-800 dark:text-zinc-100 rounded-3xl': !message.isUserMessage,
                 'rounded-br-none': !isNextMessageSamePerson && message.isUserMessage,
                 'rounded-bl-none': !isNextMessageSamePerson && !message.isUserMessage,
               }
             )}>
             {typeof message.text === 'string' ? (
             <div className={cn('prose break-words', {
-              'prose-invert': message.isUserMessage,
-              'text-zinc-100': true,
+              'prose-invert': !message.isUserMessage,
+              'text-gray-800 dark:text-zinc-100': true,
             })}>
               <ReactMarkdown
                 components={{
@@ -71,10 +76,10 @@ const Message = forwardRef<HTMLDivElement, MessageProps>(
                   h5: ({node, ...props}) => <h5 {...props} className="text-inherit" />,
                   h6: ({node, ...props}) => <h6 {...props} className="text-inherit" />,
                   a: ({node, ...props}) => (
-                    <a {...props} className="text-blue-400 hover:text-blue-300 underline" target="_blank" />
+                    <a {...props} className="text-blue-600 dark:text-blue-400 hover:text-blue-500 dark:hover:text-blue-300 underline" target="_blank" />
                   ),
                   code: ({node, ...props}) => (
-                    <code {...props} className="bg-black/30 rounded-md px-1 py-0.5 text-inherit" />
+                    <code {...props} className="bg-gray-200/50 dark:bg-black/30 rounded-md px-1 py-0.5 text-inherit" />
                   ),
                 }}
               >
@@ -89,8 +94,8 @@ const Message = forwardRef<HTMLDivElement, MessageProps>(
                 className={cn(
                   'text-xs select-none mt-2 w-full text-right',
                   {
-                    'text-zinc-300/80': !message.isUserMessage,
-                    'text-zinc-200/80': message.isUserMessage,
+                    'text-gray-500 dark:text-zinc-300/80': !message.isUserMessage,
+                    'text-gray-500 dark:text-zinc-200/80': message.isUserMessage,
                   }
                 )}>
                 {format(

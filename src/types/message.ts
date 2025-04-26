@@ -5,10 +5,16 @@ type RouterOutput = inferRouterOutputs<AppRouter>
 
 type Messages = RouterOutput['getFileMessages']['messages']
 
-type OmitText = Omit<Messages[number], 'text'>
-
-type ExtendedText = {
-  text: string | JSX.Element
+export interface ExtendedMessage {
+  id: string
+  text: string | React.ReactNode
+  isUserMessage: boolean
+  createdAt: string
+  sourceDocs?: Array<{
+    metadata: {
+      loc: {
+        pageNumber: number
+      }
+    }
+  }>
 }
-
-export type ExtendedMessage = OmitText & ExtendedText

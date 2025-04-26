@@ -38,7 +38,7 @@ const Messages = ({ groupId }: MessagesProps) => {
     id: 'loading-message',
     isUserMessage: false,
     text: (
-      <span className='flex h-full bg-gradient-to-b from-slate-800 to-slate-950  items-center justify-center'>
+      <span className='flex h-full bg-gradient-to-b from-background via-muted to-background dark:from-slate-950 dark:via-slate-900 dark:to-slate-950   items-center justify-center'>
         <Loader2 className='h-4 w-4 animate-spin' />
       </span>
     ),
@@ -63,7 +63,7 @@ const Messages = ({ groupId }: MessagesProps) => {
   }, [entry, fetchNextPage])
 
   return (
-    <div className='flex max-h-[calc(100vh-3.5rem-7rem)]  flex-1 flex-col-reverse gap-4 p-3 overflow-y-auto scrollbar-thumb-blue scrollbar-thumb-rounded scrollbar-track-blue-lighter scrollbar-w-2 scrolling-touch'>
+    <div className='flex max-h-[calc(100vh-3.5rem-7rem)]  flex-1 flex-col-reverse gap-4 p-3 overflow-y-auto scrollbar-thumb-blue scrollbar-thumb-rounded scrollbar-track-blue-lighter scrollbar-w-2 scrolling-touch bg-gradient-to-b from-background via-muted to-background dark:from-slate-950 dark:via-slate-900 dark:to-slate-950 '>
       {combinedMessages && combinedMessages.length > 0 ? (
         combinedMessages.map((message, i) => {
           const isNextMessageSamePerson =

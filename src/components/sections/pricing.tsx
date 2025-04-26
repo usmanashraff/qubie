@@ -47,25 +47,27 @@ const pricingTiers = [
 
 export function Pricing() {
   return (
-    <section id="pricing" className="py-24 relative">
+    <section id="pricing" className="py-24 relative bg-background">
       {/* Background gradient and pattern */}
-      <div className="absolute inset-0 bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950 opacity-60 z-0" />
-      <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-slate-700/50 to-transparent" />
+      <div className="absolute inset-0 bg-gradient-to-b from-background via-muted to-background dark:from-slate-950 dark:via-slate-900 dark:to-slate-950 opacity-50 z-0" />
+      <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-border dark:via-slate-700/50 to-transparent" />
       
       <div className="container relative z-10">
         <div className="text-center max-w-3xl mx-auto mb-16">
           <motion.span 
-            className="inline-block px-3 py-1 bg-teal-500/10 rounded-full text-teal-400 text-sm font-medium mb-4"
+            className="inline-block px-4 py-1.5 bg-gradient-to-r from-primary/10 to-teal-500/10 dark:from-indigo-500/20 dark:to-teal-500/20 backdrop-blur-sm rounded-full mb-3 border border-primary/10 dark:border-indigo-500/20"
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
             viewport={{ once: true }}
           >
-            PRICING PLANS
+            <span className="bg-clip-text text-transparent bg-gradient-to-r from-primary to-teal-500 dark:from-indigo-400 dark:to-teal-400">
+              PRICING PLANS
+            </span>
           </motion.span>
           
           <motion.h2 
-            className="text-3xl md:text-4xl font-bold font-space-grotesk mb-6 bg-clip-text text-transparent bg-gradient-to-r from-white to-slate-300"
+            className="text-3xl md:text-4xl font-bold font-space-grotesk mb-6 text-foreground dark:text-transparent dark:bg-clip-text dark:bg-gradient-to-r dark:from-white dark:to-slate-300"
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.1 }}
@@ -75,7 +77,7 @@ export function Pricing() {
           </motion.h2>
           
           <motion.p 
-            className="text-slate-400 text-lg"
+            className="text-muted-foreground dark:text-slate-400 text-lg"
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.2 }}
@@ -98,21 +100,25 @@ export function Pricing() {
           transition={{ duration: 0.6, delay: 0.4 }}
           viewport={{ once: true }}
         >
-          <p className="text-slate-400">
-            All plans include <span className="text-white">24-hour availability</span>, <span className="text-white">secure infrastructure</span>, and <span className="text-white">regular feature updates</span>. Need a custom plan? Contact our sales team.
+          <p className="text-muted-foreground dark:text-slate-400">
+            All plans include <span className="text-foreground dark:text-white">24-hour availability</span>, 
+            <span className="text-foreground dark:text-white"> secure infrastructure</span>, and 
+            <span className="text-foreground dark:text-white"> regular feature updates</span>. 
+            Need a custom plan? Contact our sales team.
           </p>
-          <div className="mt-4 flex justify-center gap-2">
+          
+          <div className="mt-8 flex justify-center gap-4">
             <div className="flex items-center">
-              <div className="w-4 h-4 rounded-full bg-indigo-500 mr-2"></div>
-              <span className="text-sm text-slate-400">SOC 2 Compliance</span>
+              <div className="w-4 h-4 rounded-full bg-gradient-to-r from-primary to-teal-500 dark:from-indigo-500 dark:to-indigo-400 mr-2"></div>
+              <span className="text-sm text-muted-foreground dark:text-slate-400">SOC 2 Compliance</span>
             </div>
             <div className="flex items-center">
-              <div className="w-4 h-4 rounded-full bg-teal-500 mr-2"></div>
-              <span className="text-sm text-slate-400">GDPR Ready</span>
+              <div className="w-4 h-4 rounded-full bg-gradient-to-r from-primary to-teal-500 dark:from-teal-500 dark:to-teal-400 mr-2"></div>
+              <span className="text-sm text-muted-foreground dark:text-slate-400">GDPR Ready</span>
             </div>
             <div className="flex items-center">
-              <div className="w-4 h-4 rounded-full bg-purple-500 mr-2"></div>
-              <span className="text-sm text-slate-400">HIPAA Available</span>
+              <div className="w-4 h-4 rounded-full bg-gradient-to-r from-primary to-teal-500 dark:from-purple-500 dark:to-purple-400 mr-2"></div>
+              <span className="text-sm text-muted-foreground dark:text-slate-400">HIPAA Available</span>
             </div>
           </div>
         </motion.div>
@@ -127,8 +133,8 @@ function PricingCard({ tier, index }: { tier: typeof pricingTiers[0], index: num
       className={cn(
         "relative rounded-xl overflow-hidden",
         tier.highlight 
-          ? "border-2 border-indigo-500" 
-          : "border border-slate-700/50",
+          ? "border-2 border-primary dark:border-indigo-500" 
+          : "border border-border dark:border-slate-700/50",
       )}
       initial={{ opacity: 0, y: 30 }}
       whileInView={{ opacity: 1, y: 0 }}
@@ -138,7 +144,7 @@ function PricingCard({ tier, index }: { tier: typeof pricingTiers[0], index: num
       {/* Badge for highlighted tier */}
       {tier.highlight && tier.badge && (
         <div className="absolute top-0 right-0 -mt-1 -mr-1 z-10">
-          <div className="bg-gradient-to-r from-indigo-500 to-teal-500 text-white text-xs font-bold px-3 py-1 rounded-bl-lg rounded-tr-lg shadow-lg">
+          <div className="bg-gradient-to-r from-primary to-teal-500 dark:from-indigo-500 dark:to-teal-500 text-primary-foreground text-xs font-bold px-3 py-1 rounded-bl-lg rounded-tr-lg shadow-lg">
             {tier.badge}
           </div>
         </div>
@@ -147,28 +153,28 @@ function PricingCard({ tier, index }: { tier: typeof pricingTiers[0], index: num
       {/* Glow effect for highlighted tier */}
       {tier.highlight && (
         <div className="absolute inset-0 z-0">
-          <div className="absolute inset-0 bg-gradient-to-b from-indigo-500/10 to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-b from-primary/10 to-transparent dark:from-indigo-500/10" />
         </div>
       )}
       
       <div className={cn(
         "relative z-1 p-8",
-        "bg-gradient-to-b from-slate-800/90 to-slate-900/90 backdrop-blur-sm"
+        "bg-gradient-to-br from-card/90 to-muted/90 dark:from-slate-800/90 dark:to-slate-900/90 backdrop-blur-sm"
       )}>
         <div className="text-center mb-6">
-          <h3 className="text-xl font-bold text-white mb-2">
+          <h3 className="text-xl font-bold text-foreground dark:text-white mb-2">
             {tier.name}
           </h3>
-          <p className="text-slate-400 text-sm min-h-[40px]">
+          <p className="text-muted-foreground dark:text-slate-400 text-sm min-h-[40px]">
             {tier.description}
           </p>
         </div>
         
         <div className="text-center mb-6">
           <div className="flex items-end justify-center">
-            <span className="text-4xl font-bold text-white">{tier.price}</span>
+            <span className="text-4xl font-bold text-foreground dark:text-white">{tier.price}</span>
             {tier.price !== "Custom" && (
-              <span className="text-slate-400 ml-1 mb-1">/{tier.period}</span>
+              <span className="text-muted-foreground dark:text-slate-400 ml-1 mb-1">/{tier.period}</span>
             )}
           </div>
         </div>
@@ -176,10 +182,10 @@ function PricingCard({ tier, index }: { tier: typeof pricingTiers[0], index: num
         <div className="space-y-4 mb-8">
           {tier.features.map((feature, i) => (
             <div key={i} className="flex items-start">
-              <div className="flex-shrink-0 h-5 w-5 rounded-full bg-teal-500/20 flex items-center justify-center mr-3 mt-0.5">
-                <Check className="h-3 w-3 text-teal-400" />
+              <div className="flex-shrink-0 h-5 w-5 rounded-full bg-gradient-to-r from-primary/20 to-teal-500/20 dark:bg-teal-500/20 flex items-center justify-center mr-3 mt-0.5">
+                <Check className="h-3 w-3 text-primary dark:text-teal-400" />
               </div>
-              <span className="text-slate-300 text-sm">{feature}</span>
+              <span className="text-foreground dark:text-slate-300 text-sm">{feature}</span>
             </div>
           ))}
         </div>
@@ -188,8 +194,8 @@ function PricingCard({ tier, index }: { tier: typeof pricingTiers[0], index: num
           className={cn(
             "w-full rounded-lg",
             tier.highlight
-              ? "bg-gradient-to-r from-indigo-600 to-teal-500 hover:from-indigo-500 hover:to-teal-400 text-white"
-              : "bg-slate-800 hover:bg-slate-700 text-white"
+              ? "bg-gradient-to-r from-primary to-teal-500 hover:from-primary/90 hover:to-teal-500/90 dark:from-indigo-600 dark:to-teal-500 dark:hover:from-indigo-500 dark:hover:to-teal-400 text-primary-foreground"
+              : "bg-card hover:bg-muted dark:bg-slate-800 dark:hover:bg-slate-700 text-foreground dark:text-white"
           )}
         >
           {tier.cta} <ChevronRight className="ml-1 h-4 w-4" />

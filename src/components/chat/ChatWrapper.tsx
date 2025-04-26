@@ -30,7 +30,7 @@ const ChatWrapper = ({
 
   if (isLoading)
     return (
-      <div className='relative min-h-full flex divide-y bg-gradient-to-b from-slate-800 to-slate-950 flex-col justify-between gap-2'>
+      <div className='relative min-h-full flex divide-y   <div className="h-4 bg-gradient-to-b from-background via-muted to-background dark:from-slate-950 dark:via-slate-900 dark:to-slate-950  rounded w-3/4 mb-2"></div> flex-col justify-between gap-2'>
         <div className='flex-1 flex justify-center items-center flex-col mb-28'>
           <div className='flex flex-col items-center gap-2'>
             <Loader2 className='h-8 w-8 text-blue-500 animate-spin' />
@@ -106,8 +106,8 @@ const ChatWrapper = ({
 
   return (
     <ChatContextProvider groupId={groupId}>
-      <div className='relative min-h-full bg-gradient-to-b from-slate-800 to-slate-950 flex divide-y  flex-col justify-between gap-2'>
-        <div className='flex-1 justify-between flex flex-col mb-28'>
+      <div className='relative min-h-full bg-gradient-to-b from-background via-muted to-background dark:from-slate-950 dark:via-slate-900 dark:to-slate-950 flex divide-y flex-col justify-between gap-2 '>
+        <div className='flex-1 justify-between flex flex-col mb-28 '>
 
           <Messages groupId={groupId} />
         </div>

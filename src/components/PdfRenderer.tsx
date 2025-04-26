@@ -410,20 +410,20 @@ const PdfRenderer = ({ files }: PdfRendererProps) => {
           <div className="w-full flex flex-row gap-2">
             {files && files.map((file: fileInterface, index: number) => (
             <Button
-            key={file.id}
-            onClick={() => setCurrentPdf(index)}
-            variant='secondary'
-            className={`text-sm shadow-sm truncate max-w-[100px] rounded-md border ${
-              currentPdf === index 
-                ? 'bg-gradient-to-r from-indigo-500/20 to-teal-500/20 text-white-800' // Active state
-                : 'bg-slate-800' // Default/hover
-            }`}
-            title={file.name}
-          >
-            <span className="truncate font-medium">
-              {file.name}
-            </span>
-          </Button>
+              key={file.id}
+              onClick={() => setCurrentPdf(index)}
+              variant='secondary'
+              className={`text-sm shadow-sm truncate max-w-[100px] rounded-md border ${
+                currentPdf === index 
+                  ? 'bg-gradient-to-r from-indigo-500/30 to-teal-500/30 border-indigo-200 text-gray-900 dark:text-white' // Active state
+                  : 'bg-white dark:bg-slate-800 hover:bg-gray-100 dark:hover:bg-slate-700 text-gray-900 dark:text-gray-100' // Default/hover
+              }`}
+              title={file.name}
+            >
+              <span className="truncate font-medium">
+                {file.name}
+              </span>
+            </Button>
             ))}
           </div>
           

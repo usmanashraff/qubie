@@ -42,31 +42,34 @@ export function Testimonials() {
   }
   
   return (
-    <section className="py-24 relative">
+    <section className="py-24 relative bg-background">
       {/* Background gradient and pattern */}
-      <div className="absolute inset-0 bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950 opacity-60 z-0" />
-      <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-slate-700/50 to-transparent" />
+      <div className="absolute inset-0 bg-gradient-to-b from-background via-muted to-background dark:from-slate-950 dark:via-slate-900 dark:to-slate-950 opacity-50 z-0" />
+      <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-border dark:via-slate-700/50 to-transparent" />
       
       {/* Geometric background pattern */}
-              <div className="absolute inset-0 w-full h-full overflow-hidden">
-          <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_50%_50%,rgba(120,119,198,0.3),transparent,transparent)]" />
-          <div className="absolute top-1/3 left-1/4 w-96 h-96 border border-indigo-500/20 rounded-full opacity-20" />
-          <div className="absolute bottom-1/4 right-1/3 w-64 h-64 border border-teal-500/20 rounded-full opacity-20" />
-        </div>
+      <div className="absolute inset-0 w-full h-full overflow-hidden">
+        <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_50%_50%,rgba(0,0,0,0.05),transparent,transparent)] dark:bg-[radial-gradient(circle_at_50%_50%,rgba(120,119,198,0.3),transparent,transparent)]" />
+        <div className="absolute top-1/3 left-1/4 w-96 h-96 border border-primary/20 dark:border-indigo-500/20 rounded-full opacity-20" />
+        <div className="absolute bottom-1/4 right-1/3 w-64 h-64 border border-teal-500/20 rounded-full opacity-20" />
+      </div>
+
       <div className="container relative z-10">
         <div className="text-center max-w-3xl mx-auto mb-16">
           <motion.span 
-            className="inline-block px-3 py-1 bg-purple-500/10 rounded-full text-purple-400 text-sm font-medium mb-4"
+            className="inline-block px-4 py-1.5 bg-gradient-to-r from-primary/10 to-teal-500/10 dark:from-indigo-500/20 dark:to-teal-500/20 backdrop-blur-sm rounded-full mb-3 border border-primary/10 dark:border-indigo-500/20"
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
             viewport={{ once: true }}
           >
-            SUCCESS STORIES
+            <span className="bg-clip-text text-transparent bg-gradient-to-r from-primary to-teal-500 dark:from-indigo-400 dark:to-teal-400">
+              SUCCESS STORIES
+            </span>
           </motion.span>
           
           <motion.h2 
-            className="text-3xl md:text-4xl font-bold font-space-grotesk mb-6 bg-clip-text text-transparent bg-gradient-to-r from-white to-slate-300"
+            className="text-3xl md:text-4xl font-bold font-space-grotesk mb-6 text-foreground dark:text-transparent dark:bg-clip-text dark:bg-gradient-to-r dark:from-white dark:to-slate-300"
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.1 }}
@@ -76,7 +79,7 @@ export function Testimonials() {
           </motion.h2>
           
           <motion.p 
-            className="text-slate-400 text-lg"
+            className="text-muted-foreground dark:text-slate-400 text-lg"
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.2 }}
@@ -108,7 +111,7 @@ export function Testimonials() {
                 onClick={prevTestimonial}
                 variant="outline"
                 size="icon"
-                className="rounded-full border-slate-700 bg-slate-800/50 text-slate-300 hover:bg-slate-700 hover:text-white"
+                className="rounded-full border-border bg-card/50 text-foreground hover:bg-muted dark:border-slate-700 dark:bg-slate-800/50 dark:text-slate-300 dark:hover:bg-slate-700 dark:hover:text-white"
               >
                 <ChevronLeft className="h-5 w-5" />
               </Button>
@@ -122,8 +125,8 @@ export function Testimonials() {
                   className={cn(
                     "w-2 h-2 p-0 rounded-full",
                     idx === currentIndex 
-                      ? "bg-teal-400" 
-                      : "bg-slate-700 hover:bg-slate-600"
+                      ? "bg-gradient-to-r from-primary to-teal-500 dark:from-indigo-400 dark:to-teal-400" 
+                      : "bg-muted hover:bg-muted/80 dark:bg-slate-700 dark:hover:bg-slate-600"
                   )}
                 />
               ))}
@@ -132,7 +135,7 @@ export function Testimonials() {
                 onClick={nextTestimonial}
                 variant="outline"
                 size="icon"
-                className="rounded-full border-slate-700 bg-slate-800/50 text-slate-300 hover:bg-slate-700 hover:text-white"
+                className="rounded-full border-border bg-card/50 text-foreground hover:bg-muted dark:border-slate-700 dark:bg-slate-800/50 dark:text-slate-300 dark:hover:bg-slate-700 dark:hover:text-white"
               >
                 <ChevronRight className="h-5 w-5" />
               </Button>
@@ -147,37 +150,52 @@ export function Testimonials() {
 function TestimonialCard({ testimonial }: { testimonial: typeof testimonials[0] }) {
   return (
     <motion.div 
-      className="bg-gradient-to-br from-slate-800/80 to-slate-900/80 backdrop-blur-sm rounded-xl p-8 border border-slate-700/50"
+      className={cn(
+        "bg-gradient-to-br from-card/90 to-muted/90 dark:from-slate-800/80 dark:to-slate-900/80",
+        "backdrop-blur-sm rounded-xl p-8",
+        "border border-border dark:border-slate-700/50",
+        "relative overflow-hidden"
+      )}
       initial={{ opacity: 0, scale: 0.95 }}
       whileInView={{ opacity: 1, scale: 1 }}
       transition={{ duration: 0.5 }}
       viewport={{ once: true }}
     >
-      <div className="flex items-center mb-6">
-        <div className="flex mr-2">
-          {[...Array(testimonial.rating)].map((_, i) => (
-            <Star key={i} className="h-4 w-4 text-yellow-400 fill-yellow-400" />
-          ))}
-        </div>
+      {/* Card background effects */}
+      <div className="absolute inset-0 rounded-xl overflow-hidden">
+        <div className={cn(
+          "absolute inset-0 opacity-0 group-hover:opacity-20 transition-opacity duration-500",
+          "bg-gradient-to-br from-primary/30 via-transparent to-teal-500/30 dark:from-indigo-500/30 dark:via-transparent dark:to-teal-500/30"
+        )} />
       </div>
-      
-      <blockquote className="text-white text-lg leading-relaxed italic mb-8">
-        "{testimonial.quote}"
-      </blockquote>
-      
-      <div className="flex items-center">
-        <div className="h-12 w-12 rounded-full overflow-hidden mr-4">
-          <Image
-            width={48}
-            height={48}
-            src={testimonial.avatar} 
-            alt={testimonial.author}
-            className="h-full w-full object-cover" 
-          />
+
+      <div className="relative z-10">
+        <div className="flex items-center mb-6">
+          <div className="flex mr-2">
+            {[...Array(testimonial.rating)].map((_, i) => (
+              <Star key={i} className="h-4 w-4 text-primary dark:text-yellow-400 fill-primary dark:fill-yellow-400" />
+            ))}
+          </div>
         </div>
-        <div>
-          <p className="text-white font-medium">{testimonial.author}</p>
-          <p className="text-slate-400">{testimonial.title}</p>
+        
+        <blockquote className="text-foreground dark:text-white text-lg leading-relaxed italic mb-8">
+          "{testimonial.quote}"
+        </blockquote>
+        
+        <div className="flex items-center">
+          <div className="h-12 w-12 rounded-full overflow-hidden mr-4">
+            <Image
+              width={48}
+              height={48}
+              src={testimonial.avatar} 
+              alt={testimonial.author}
+              className="h-full w-full object-cover" 
+            />
+          </div>
+          <div>
+            <p className="text-foreground dark:text-white font-medium">{testimonial.author}</p>
+            <p className="text-muted-foreground dark:text-slate-400">{testimonial.title}</p>
+          </div>
         </div>
       </div>
     </motion.div>

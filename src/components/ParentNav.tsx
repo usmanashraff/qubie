@@ -18,7 +18,7 @@ export async function ParentNav() {
     const user = await getUser()
   return (
     <div className={cn(
-      "fixed top-0 w-full z-50 transition-all duration-300", 
+      " fixed top-0 w-full z-50 transition-all duration-300", 
          "bg-background/90 backdrop-blur-md shadow-md" 
     )}>
       <div className="container flex h-16 items-center">

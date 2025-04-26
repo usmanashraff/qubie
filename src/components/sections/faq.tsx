@@ -20,43 +20,41 @@ const faqs = [
   },
   {
     question: "What file sizes and types are supported?",
-    answer: "Qubie supports documents up to 500MB. We handle over 20 formats including PDF, DOCX, XLSX, PPT, TXT, CSV, JSON, HTML, and markdown. For Enterprise users, we also support DICOM, PPTX with animations, LaTeX, and more specialized formats. If you have a particular format need, please contact us."
+    answer: "Free plans support files up to 4MB and 200 pages per document. Pro plans extend this to 32MB and 500 pages per document. We support PDFs, Word documents (.docx), Excel spreadsheets (.xlsx), PowerPoint presentations (.pptx), and 20+ other common business file formats."
   },
   {
-    question: "How accurate are Qubie's AI-generated responses?",
-    answer: "Qubie's accuracy is industry-leading due to our deep contextual analysis capabilities. Unlike simple chatbots, we analyze relationships between data points across documents. Our Smart Citations feature provides transparency by highlighting exactly where information was sourced, allowing you to verify accuracy. Enterprise users can configure confidence thresholds and require citations for all responses."
+    question: "How accurate is the AI in understanding context?",
+    answer: "Qubie's AI uses advanced language models trained on millions of documents. It understands complex relationships, can cross-reference information across multiple documents, and provides citations for its responses. Our accuracy rates are consistently above 95% for factual retrieval tasks."
   },
   {
-    question: "How does Qubie's pricing work for teams?",
-    answer: "Pro plans include up to 3 users. For larger teams, our Enterprise plan offers custom pricing based on user count, document volume, and specific feature requirements. Enterprise plans include team workspaces, role-based access controls, and usage analytics. Contact our sales team for a tailored quote."
-  },
-  {
-    question: "Do you offer API access for integration with our internal systems?",
-    answer: "Yes, Pro plans include API access with 1,000 calls per month. Enterprise plans include unlimited API calls and dedicated integration support. Our comprehensive REST API allows you to upload documents, query documents, manage users, and automate workflows. We provide SDKs for JavaScript, Python, Ruby, and Java."
+    question: "Can I integrate Qubie with other tools?",
+    answer: "Yes! Qubie offers integrations with popular tools like Slack, Microsoft Teams, and Notion. We also provide a comprehensive API for custom integrations. Enterprise plans include additional integration options and dedicated support for implementation."
   }
 ]
 
 export function FaqSection() {
   return (
-    <section id="faq" className="py-24 relative">
+    <section id="faq" className="py-24 relative bg-background">
       {/* Background gradient and pattern */}
-      <div className="absolute inset-0 bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950 opacity-60 z-0" />
-      <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-slate-700/50 to-transparent" />
+      <div className="absolute inset-0 bg-gradient-to-b from-background via-muted to-background dark:from-slate-950 dark:via-slate-900 dark:to-slate-950 opacity-50 z-0" />
+      <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-border dark:via-slate-700/50 to-transparent" />
       
       <div className="container relative z-10">
         <div className="text-center max-w-3xl mx-auto mb-16">
           <motion.span 
-            className="inline-block px-3 py-1 bg-violet-500/10 rounded-full text-violet-400 text-sm font-medium mb-4"
+            className="inline-block px-4 py-1.5 bg-gradient-to-r from-primary/10 to-teal-500/10 dark:from-indigo-500/20 dark:to-teal-500/20 backdrop-blur-sm rounded-full mb-3 border border-primary/10 dark:border-indigo-500/20"
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
             viewport={{ once: true }}
           >
-            QUESTIONS & ANSWERS
+            <span className="bg-clip-text text-transparent bg-gradient-to-r from-primary to-teal-500 dark:from-indigo-400 dark:to-teal-400">
+              QUESTIONS & ANSWERS
+            </span>
           </motion.span>
           
           <motion.h2 
-            className="text-3xl md:text-4xl font-bold font-space-grotesk mb-6 bg-clip-text text-transparent bg-gradient-to-r from-white to-slate-300"
+            className="text-3xl md:text-4xl font-bold font-space-grotesk mb-6 text-foreground dark:text-transparent dark:bg-clip-text dark:bg-gradient-to-r dark:from-white dark:to-slate-300"
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.1 }}
@@ -66,7 +64,7 @@ export function FaqSection() {
           </motion.h2>
           
           <motion.p 
-            className="text-slate-400 text-lg"
+            className="text-muted-foreground dark:text-slate-400 text-lg"
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.2 }}
@@ -92,11 +90,16 @@ export function FaqSection() {
                 transition={{ duration: 0.4, delay: index * 0.1 }}
                 viewport={{ once: true }}
               >
-                <AccordionItem value={`item-${index}`} className="border border-slate-800 rounded-lg overflow-hidden bg-slate-900/50 backdrop-blur-sm">
-                  <AccordionTrigger className="px-6 py-4 hover:no-underline hover:bg-slate-800/50 data-[state=open]:bg-slate-800/50 transition-all">
-                    <span className="text-white font-medium text-left">{faq.question}</span>
+                <AccordionItem 
+                  value={`item-${index}`} 
+                  className="border border-border dark:border-slate-800 rounded-lg overflow-hidden bg-gradient-to-br from-card/80 to-muted/80 dark:from-slate-900/50 dark:to-slate-900/50 backdrop-blur-sm"
+                >
+                  <AccordionTrigger 
+                    className="px-6 py-4 hover:no-underline hover:bg-muted/50 dark:hover:bg-slate-800/50 data-[state=open]:bg-muted/50 dark:data-[state=open]:bg-slate-800/50 transition-all"
+                  >
+                    <span className="text-foreground dark:text-white font-medium text-left">{faq.question}</span>
                   </AccordionTrigger>
-                  <AccordionContent className="px-6 py-4 text-slate-300">
+                  <AccordionContent className="px-6 py-4 text-muted-foreground dark:text-slate-300">
                     {faq.answer}
                   </AccordionContent>
                 </AccordionItem>
@@ -112,8 +115,8 @@ export function FaqSection() {
           transition={{ duration: 0.5, delay: 0.6 }}
           viewport={{ once: true }}
         >
-          <p className="text-slate-400">
-            Still have questions? <a href="#" className="text-teal-400 hover:underline">Contact our support team</a>
+          <p className="text-muted-foreground dark:text-slate-400">
+            Still have questions? <a href="#" className="text-primary dark:text-teal-400 hover:underline">Contact our support team</a>
           </p>
         </motion.div>
       </div>

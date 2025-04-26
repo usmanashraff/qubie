@@ -37,10 +37,10 @@ const Page = async ({ params }: PageProps) => {
 
   if (!fileGroup) {
     return (
-      <div className="flex justify-center items-center h-screen">
+      <div className="flex justify-center items-center h-screen bg-background">
         <div className="flex flex-col items-center gap-2">
-          <Loader2 className="h-8 w-8 animate-spin text-blue-500" />
-          <p className="text-sm text-gray-500">Waiting for files to be processed...</p>
+          <Loader2 className="h-8 w-8 animate-spin text-primary dark:text-blue-500" />
+          <p className="text-sm text-muted-foreground dark:text-gray-500">Waiting for files to be processed...</p>
         </div>
       </div>
     )
@@ -61,13 +61,13 @@ const Page = async ({ params }: PageProps) => {
 
   // const files_urls = files.map(file => file.url)
   return (
-    <div className='flex-1 justify-between flex flex-col h-[calc(100vh-3.5rem)] mt-[4rem] bg-gradient-to-b from-slate-800 to-slate-950 '>
+    <div className='mt-[4rem] flex-1 justify-between flex flex-col h-[calc(100vh-3.5rem)] bg-gradient-to-b from-background via-muted to-background dark:from-slate-800 dark:to-slate-950'>
       <div className='mx-auto w-full max-w-8xl grow lg:flex xl:px-2'>
         <div className='flex-1 xl:flex'>
           <div className='px-4 py-6 sm:px-6 lg:pl-8 xl:flex-1 xl:pl-6'>
             <Suspense fallback={
               <div className="flex justify-center items-center h-full">
-                <Loader2 className="h-8 w-8 animate-spin text-blue-500" />
+                <Loader2 className="h-8 w-8 animate-spin text-primary dark:text-blue-500" />
               </div>
             }>
               <PdfRenderer files={files} />
@@ -75,7 +75,7 @@ const Page = async ({ params }: PageProps) => {
           </div>
         </div>
 
-        <div className='shrink-0 flex-[0.75] lg:w-96 lg:border-l lg:border-t-0'>
+        <div className='shrink-0 flex-[0.75] lg:w-96 lg:border-l lg:border-border dark:border-slate-700/50'>
           <ChatWrapper groupId={fileGroup.id} />
         </div>
       </div>
