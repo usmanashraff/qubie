@@ -12,14 +12,17 @@ import {
   NavigationMenuTrigger,
   navigationMenuTriggerStyle,
 } from "@/components/ui/navigation-menu"
-import { Monitor, Bot, Sparkles, Users } from "lucide-react"
+import { Monitor, Bot, Sparkles, Users, Menu } from "lucide-react"
+import { Button } from "@/components/ui/button"
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
 
 export function Navbar() {
+  const [isOpen, setIsOpen] = React.useState(false)
 
-  
   return (
-    
-        <NavigationMenu className="hidden md:flex">
+    <nav className="flex items-center justify-between px-4 py-2">
+      {/* Desktop Navigation */}
+      <NavigationMenu className="hidden md:flex">
           <NavigationMenuList>
             <NavigationMenuItem>
               <Link href="/" className="flex items-center space-x-2 mr-6">
@@ -78,9 +81,106 @@ export function Navbar() {
             </NavigationMenuItem>
           </NavigationMenuList>
         </NavigationMenu>
-      
+
+      {/* Mobile Hamburger Menu */}
+      <div className="md:hidden">
+        <Sheet open={isOpen} onOpenChange={setIsOpen}>
+          <SheetTrigger asChild>
+            <Button variant="ghost" size="icon">
+              <Menu className="h-6 w-6" />
+            </Button>
+          </SheetTrigger>
+          <SheetContent side="right" className="w-[300px] sm:w-[400px]">
+            <div className="flex flex-col h-full">
+              <div className="flex items-center justify-between mb-6">
+                <Link href="/" className="flex items-center space-x-2" onClick={() => setIsOpen(false)}>
+                  <Bot className="h-6 w-6 text-primary" />
+                  <span className="font-space-grotesk font-bold text-xl bg-clip-text text-transparent bg-gradient-to-r from-primary to-teal-500">
+                    Qubie
+                  </span>
+                </Link>
+              </div>
+
+              <div className=" flex-col space-y-2 ">
+                {/* Features Dropdown */}
+                <div className=" flex-col space-y-2 hidden md:flex" >
+                  <Link
+                    href="#"
+                    className={cn(navigationMenuTriggerStyle(), "w-full justify-start")}
+                    onClick={(e) => e.preventDefault()}
+                  >
+                    Features
+                  </Link>
+                  <div className="ml-4 flex flex-col space-y-2">
+                    <MobileListItem href="/#features" title="Universal Compatibility" icon={<Monitor className="h-4 w-4 text-teal-400 mr-2" />}>
+                      Support for PDFs, spreadsheets and 20+ formats
+                    </MobileListItem>
+                    <MobileListItem href="/#features" title="Smart Citations" icon={<Sparkles className="h-4 w-4 text-teal-400 mr-2" />}>
+                      AI highlights exact sources from your documents
+                    </MobileListItem>
+                    <MobileListItem href="/#features" title="Multi-Documents Support" icon={<Users className="h-4 w-4 text-teal-400 mr-2" />}>
+                      Qubie supports querying across up to 10 documents simultaneously
+                    </MobileListItem>
+                  </div>
+                </div>
+
+                <Link
+                  href="/#pricing"
+                  className={cn(navigationMenuTriggerStyle(), "w-full justify-start")}
+                  onClick={() => setIsOpen(false)}
+                >
+                  Pricing
+                </Link>
+
+                <Link
+                  href="/#faq"
+                  className={cn(navigationMenuTriggerStyle(), "w-full justify-start")}
+                  onClick={() => setIsOpen(false)}
+                >
+                  FAQ
+                </Link>
+              </div>
+            </div>
+          </SheetContent>
+        </Sheet>
+      </div>
+    </nav>
   )
 }
+
+// Update the MobileListItem component props
+const MobileListItem = React.forwardRef<
+  React.ElementRef<typeof Link>,  // Change from "a" to typeof Link
+  React.ComponentPropsWithoutRef<typeof Link> & {  // Use Link's props
+    icon?: React.ReactNode
+    title: string
+  }
+>(({ className, title, children, icon, ...props }, ref) => {
+  return (
+    <Link
+      ref={ref}
+      className={cn(
+        "flex flex-col p-2 rounded-md hover:bg-accent transition-colors",
+        className
+      )}
+      {...props}
+    >
+      <div className="flex items-center text-sm font-medium">
+        {icon}
+        {title}
+      </div>
+      <p className="text-sm text-muted-foreground mt-1">
+        {children}
+      </p>
+    </Link>
+  )
+})
+MobileListItem.displayName = "MobileListItem"
+
+
+
+
+
 
 const ListItem = React.forwardRef<
   React.ElementRef<"a">,

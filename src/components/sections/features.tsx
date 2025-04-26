@@ -2,7 +2,7 @@
 
 import React from "react"
 import { motion } from "@/lib/motion"
-import { Sparkles, Files, BookMarked } from "lucide-react"
+import { Sparkles, Files, BookMarked, Puzzle } from "lucide-react"
 import { cn } from "@/lib/utils"
 
 const features = [
@@ -17,15 +17,15 @@ const features = [
     icon: <Files className="h-6 w-6 text-indigo-400" />
   },
   {
-    title: "Support Multiple Documents",
-    description: "Qubie supports querying across up to 10 documents simultaneously** for deeper insights.",
+    title: "Smart Citations",
+    description: "AI highlights exact sources from your documents, ensuring transparency and trustworthiness in every response.",
     icon: <BookMarked className="h-6 w-6 text-teal-400" />
   },
-  // {
-  //   title: "API & Integrations",
-  //   description: "Connect with Slack, Notion, Zapier, and more. Build custom workflows with our comprehensive API.",
-  //   icon: <Puzzle className="h-6 w-6 text-violet-400" />
-  // }
+  {
+    title: "API & Integrations",
+    description: "Connect with Slack, Notion, Zapier, and more. Build custom workflows with our comprehensive API.",
+    icon: <Puzzle className="h-6 w-6 text-violet-400" />
+  }
 ]
 
 export function Features() {
@@ -68,7 +68,7 @@ export function Features() {
           </motion.p>
         </div>
         
-        <div className="flex lg:grid-cols-4 gap-6 ">
+        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
           {features.map((feature, index) => (
             <FeatureCard key={index} feature={feature} index={index} />
           ))}
@@ -76,7 +76,7 @@ export function Features() {
         
         {/* Feature Showcase */}
         <motion.div 
-          className="mt-20 bg-gradient-to-br from-slate-800/80 to-slate-900/80 backdrop-blur-sm rounded-xl overflow-hidden border border-slate-700/50"
+          className="hidden md:block mt-20 bg-gradient-to-br from-slate-800/80 to-slate-900/80 backdrop-blur-sm rounded-xl overflow-hidden border border-slate-700/50"
           initial={{ opacity: 0, y: 40 }}
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.7 }}

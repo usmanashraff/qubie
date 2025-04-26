@@ -25,8 +25,8 @@ export async function ParentNav() {
       <Navbar />
 
         
-        <div className="flex-1 flex justify-center md:justify-end">
-          <div className="flex items-center gap-4">
+        <div className="flex-1 flex justify-end ">
+          <div className="flex  gap-4">
             
 
 
@@ -34,7 +34,7 @@ export async function ParentNav() {
             {!user ? (
               <>
                 <LoginLink>
-                    <Button variant="ghost" size="sm" className="hidden md:flex">
+                    <Button variant="ghost" size="sm">
                         Log in
                         </Button>
                 </LoginLink>
@@ -49,7 +49,7 @@ export async function ParentNav() {
               <>
                 <Link
                   href='/dashboard'>
-                   <Button variant="ghost" size="sm" className="hidden md:flex">
+                   <Button variant="ghost" size="sm">
                         Dashboard
                         </Button>
                 </Link>

@@ -13,10 +13,9 @@ export default function Home() {
     <Features />
      <HowItWorks />
      <WhyQubie />
-    <Testimonials />
-    <Pricing />
-    <FaqSection />
-    {/* <CtaSection /> */}
+     <Testimonials />
+   <Pricing />
+   <FaqSection />
     <Footer /> 
   </main>
   )

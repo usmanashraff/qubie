@@ -48,12 +48,11 @@ export function Testimonials() {
       <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-slate-700/50 to-transparent" />
       
       {/* Geometric background pattern */}
-      <div className="absolute inset-0 opacity-5">
-        <div className="absolute top-0 left-0 right-0 bottom-0 bg-[radial-gradient(circle_at_50%_50%,rgba(120,119,198,0.3),transparent,transparent)]" />
-        <div className="absolute top-1/3 left-1/4 w-96 h-96 border border-indigo-500/20 rounded-full opacity-20" />
-        <div className="absolute bottom-1/4 right-1/3 w-64 h-64 border border-teal-500/20 rounded-full opacity-20" />
-      </div>
-      
+              <div className="absolute inset-0 w-full h-full overflow-hidden">
+          <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_50%_50%,rgba(120,119,198,0.3),transparent,transparent)]" />
+          <div className="absolute top-1/3 left-1/4 w-96 h-96 border border-indigo-500/20 rounded-full opacity-20" />
+          <div className="absolute bottom-1/4 right-1/3 w-64 h-64 border border-teal-500/20 rounded-full opacity-20" />
+        </div>
       <div className="container relative z-10">
         <div className="text-center max-w-3xl mx-auto mb-16">
           <motion.span 
@@ -139,69 +138,6 @@ export function Testimonials() {
               </Button>
             </div>
           </div>
-          
-          {/* Video testimonial preview */}
-          <motion.div 
-            className="mt-16 bg-gradient-to-br from-slate-800/80 to-slate-900/80 backdrop-blur-sm rounded-xl overflow-hidden border border-slate-700/50"
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-            viewport={{ once: true }}
-          >
-            <div className="grid md:grid-cols-2 gap-0">
-              <div className="p-8 md:p-10 flex flex-col justify-center">
-                <span className="text-teal-400 font-medium mb-3">FEATURED STORY</span>
-                <h3 className="text-2xl font-bold font-space-grotesk mb-4 text-white">
-                  How NextLevel Research Streamlined Their Document Analysis
-                </h3>
-                <div className="flex items-center mb-6">
-                  <div className="flex mr-2">
-                    {[...Array(5)].map((_, i) => (
-                      <Star key={i} className="h-4 w-4 text-yellow-400 fill-yellow-400" />
-                    ))}
-                  </div>
-                  <span className="text-slate-400 text-sm">5.0 rating</span>
-                </div>
-                <p className="text-slate-300 italic mb-6">
-                  "Qubie transformed our research processes completely. What used to take days now takes minutes, and the quality of insights has improved dramatically."
-                </p>
-                <div className="flex items-center">
-                  <div className="h-10 w-10 rounded-full overflow-hidden mr-3">
-                    <img 
-                      src="https://api.dicebear.com/7.x/micah/svg?seed=Michael" 
-                      alt="Michael Parker"
-                      className="h-full w-full object-cover" 
-                    />
-                  </div>
-                  <div>
-                    <p className="text-white font-medium">Michael Parker</p>
-                    <p className="text-slate-400 text-sm">Head of Research, NextLevel</p>
-                  </div>
-                </div>
-              </div>
-              
-              <div className="relative">
-                <div className="aspect-video w-full bg-slate-900 flex items-center justify-center relative overflow-hidden">
-                  <div className="absolute inset-0 bg-gradient-to-tr from-indigo-900/20 to-transparent" />
-                  <Image 
-                   width={1280}
-                   height={720}
-                    src="https://images.pexels.com/photos/3182812/pexels-photo-3182812.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2" 
-                    alt="Video thumbnail" 
-                    className="w-full h-full object-cover opacity-50"
-                  />
-                  <div className="absolute inset-0 flex items-center justify-center">
-                    <Button 
-                      className="w-16 h-16 rounded-full bg-teal-500 hover:bg-teal-400 text-white"
-                      variant="default"
-                    >
-                      <Play className="h-6 w-6 ml-1" />
-                    </Button>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </motion.div>
         </div>
       </div>
     </section>

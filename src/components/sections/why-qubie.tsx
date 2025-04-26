@@ -34,7 +34,7 @@ const differentiators = [
 
 export function WhyQubie() {
   return (
-    <section id="why-qubie" className="py-24 relative">
+    <section id="why-qubie" className="py-24 relative hidden md:block">
       {/* Background gradient and pattern */}
       <div className="absolute inset-0 bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950 opacity-60 z-0" />
       <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-slate-700/50 to-transparent" />
