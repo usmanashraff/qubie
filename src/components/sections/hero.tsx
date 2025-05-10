@@ -30,12 +30,14 @@ export function Hero() {
               </div>
               
               <h1 className="font-space-grotesk text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight leading-[1.1] mb-4 text-foreground dark:bg-clip-text dark:text-transparent dark:bg-gradient-to-r dark:from-white dark:to-slate-300">
-                Revolutionize How You Interact with Documents
+              Chat with Your Documents
                 <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-teal-500 dark:from-indigo-400 dark:to-teal-400">—Powered by AI.</span>
               </h1>
               
               <p className="text-lg text-muted-foreground md:text-xl max-w-xl leading-relaxed">
-                Upload, Chat, and Collaborate with Your Files Intelligently. No More Scrolling—Just Ask.
+              Get instant answers from your files. No more searching—just ask.
+
+
               </p>
             </div>
             

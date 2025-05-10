@@ -224,46 +224,46 @@ const onUploadComplete = async ({
 export const ourFileRouter = {
   freePlanUploader: f({ 
     // PDF & Word
-    pdf: { maxFileSize: "4MB", maxFileCount: 10 },
-    "application/vnd.openxmlformats-officedocument.wordprocessingml.document": { maxFileSize: "4MB", maxFileCount: 10 },
-    "application/msword": { maxFileSize: "4MB", maxFileCount: 10 },
+    pdf: { maxFileSize: "4MB", maxFileCount: 3 },
+    "application/vnd.openxmlformats-officedocument.wordprocessingml.document": { maxFileSize: "4MB", maxFileCount: 3 },
+    "application/msword": { maxFileSize: "4MB", maxFileCount: 3 },
     
     // PowerPoint
-    "application/vnd.openxmlformats-officedocument.presentationml.presentation": { maxFileSize: "4MB", maxFileCount: 10 },
-    "application/vnd.ms-powerpoint": { maxFileSize: "4MB", maxFileCount: 10 },
+    "application/vnd.openxmlformats-officedocument.presentationml.presentation": { maxFileSize: "4MB", maxFileCount: 3 },
+    "application/vnd.ms-powerpoint": { maxFileSize: "4MB", maxFileCount: 3 },
 
     // Excel
-    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet": { maxFileSize: "4MB", maxFileCount: 10 },
-    "application/vnd.ms-excel": { maxFileSize: "4MB", maxFileCount: 10 },
+    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet": { maxFileSize: "4MB", maxFileCount: 3 },
+    "application/vnd.ms-excel": { maxFileSize: "4MB", maxFileCount: 3 },
 
     // CSV
-    "text/csv": { maxFileSize: "4MB", maxFileCount: 10 },
+    "text/csv": { maxFileSize: "4MB", maxFileCount: 3 },
 
     // TXT
-    "text/plain": { maxFileSize: "4MB", maxFileCount: 10 },
+    "text/plain": { maxFileSize: "4MB", maxFileCount: 3 },
   })
     .middleware(middleware)
     .onUploadComplete(onUploadComplete),
 
   proPlanUploader: f({ 
     // PDF & Word
-    pdf: { maxFileSize: "32MB", maxFileCount: 10 },
-    "application/vnd.openxmlformats-officedocument.wordprocessingml.document": { maxFileSize: "4MB", maxFileCount: 10 },
-    "application/msword": { maxFileSize: "4MB", maxFileCount: 10 },
+    pdf: { maxFileSize: "32MB", maxFileCount: 5 },
+    "application/vnd.openxmlformats-officedocument.wordprocessingml.document": { maxFileSize: "4MB", maxFileCount: 5 },
+    "application/msword": { maxFileSize: "32MB", maxFileCount: 5 },
 
     // PowerPoint
-    "application/vnd.ms-powerpoint": { maxFileSize: "32MB", maxFileCount: 10 },
-    "application/vnd.openxmlformats-officedocument.presentationml.presentation": { maxFileSize: "32MB", maxFileCount: 10 },
+    "application/vnd.ms-powerpoint": { maxFileSize: "32MB", maxFileCount: 5 },
+    "application/vnd.openxmlformats-officedocument.presentationml.presentation": { maxFileSize: "32MB", maxFileCount: 5 },
 
     // Excel
-    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet": { maxFileSize: "4MB", maxFileCount: 10 },
-    "application/vnd.ms-excel": { maxFileSize: "4MB", maxFileCount: 10 },
+    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet": { maxFileSize: "4MB", maxFileCount: 5 },
+    "application/vnd.ms-excel": { maxFileSize: "32MB", maxFileCount: 5 },
 
     // CSV
-    "text/csv": { maxFileSize: "4MB", maxFileCount: 10 },
+    "text/csv": { maxFileSize: "4MB", maxFileCount: 5 },
 
     // TXT
-    "text/plain": { maxFileSize: "4MB", maxFileCount: 10 },
+    "text/plain": { maxFileSize: "4MB", maxFileCount: 5 },
   })
     .middleware(middleware)
     .onUploadComplete(onUploadComplete),

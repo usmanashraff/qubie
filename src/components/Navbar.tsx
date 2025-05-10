@@ -32,36 +32,11 @@ export function Navbar() {
             </NavigationMenuItem>
             
             <NavigationMenuItem>
-              <NavigationMenuTrigger>Features</NavigationMenuTrigger>
-              <NavigationMenuContent>
-                <ul className="grid gap-3 p-6 md:w-[400px] lg:w-[500px] lg:grid-cols-[.75fr_1fr]">
-                  <li className="row-span-3">
-                    <NavigationMenuLink asChild>
-                      <Link
-                        className="flex h-full w-full select-none flex-col justify-end rounded-md bg-gradient-to-b from-slate-800 to-slate-900 p-6 no-underline outline-none focus:shadow-md"
-                        href="/"
-                      >
-                        <Sparkles className="h-6 w-6 text-teal-400" />
-                        <div className="mt-4 mb-2 text-lg font-medium text-white">
-                          AI-Powered
-                        </div>
-                        <p className="text-sm leading-tight text-white/70">
-                          Interact with your documents using advanced AI technology
-                        </p>
-                      </Link>
-                    </NavigationMenuLink>
-                  </li>
-                  <ListItem href="/#features" title="Universal Compatibility" icon={<Monitor className="h-4 w-4 text-teal-400 mr-2" />}>
-                    Support for PDFs, spreadsheets and 20+ formats
-                  </ListItem>
-                  <ListItem href="/#features" title="Smart Citations" icon={<Sparkles className="h-4 w-4 text-teal-400 mr-2" />}>
-                    AI highlights exact sources from your documents
-                  </ListItem>
-                  <ListItem href="/#features" title="Multi-Documents Support" icon={<Users className="h-4 w-4 text-teal-400 mr-2" />}>
-                  Qubie supports querying across up to 10 documents simultaneously** for deeper insights.
-                  </ListItem>
-                </ul>
-              </NavigationMenuContent>
+            <Link href="/#features" legacyBehavior passHref>
+                <NavigationMenuLink className={navigationMenuTriggerStyle()}>
+                  Pricing
+                </NavigationMenuLink>
+              </Link>
             </NavigationMenuItem>
             
             <NavigationMenuItem>
@@ -78,6 +53,13 @@ export function Navbar() {
                   FAQ
                 </NavigationMenuLink>
               </Link>
+            </NavigationMenuItem>
+            <NavigationMenuItem>
+              {/* <Link href="/about-us" legacyBehavior passHref>
+                <NavigationMenuLink className={navigationMenuTriggerStyle()}>
+                  About Us
+                </NavigationMenuLink>
+              </Link> */}
             </NavigationMenuItem>
           </NavigationMenuList>
         </NavigationMenu>

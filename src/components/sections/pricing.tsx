@@ -13,7 +13,7 @@ const pricingTiers = [
     price: "$0",
     period: "forever",
     features: [
-      "3 documents per document",
+      "3 documents per conversations",
       "Max 200 pages per document",
       "Max 4MB file size",
       "Basic AI responses",
@@ -30,7 +30,7 @@ const pricingTiers = [
     price: "$10",
     period: "per month",
     features: [
-      "10 documents per document",
+      "5 documents per document",
       "Max 500 pages per document",
       "Max 32MB file size",
       "Advanced AI responses",

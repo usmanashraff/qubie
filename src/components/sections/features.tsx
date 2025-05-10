@@ -13,17 +13,17 @@ const features = [
   },
   {
     title: "Universal Compatibility",
-    description: "PDFs, spreadsheets, code repos, and 20+ formats. Seamlessly work with all your document types in one platform.",
+    description: "PDFs, spreadsheets, word docx, and 6 formats. Seamlessly work with all your document types in one platform.",
     icon: <Files className="h-6 w-6 text-indigo-400" />
   },
   {
-    title: "Smart Citations",
-    description: "AI highlights exact sources from your documents, ensuring transparency and trustworthiness in every response.",
+    title: "Multiple documents",
+    description: "AI highlights exact sources from your documents, ensuring transparency and atomicity in every response.",
     icon: <BookMarked className="h-6 w-6 text-teal-400" />
   },
   {
-    title: "API & Integrations",
-    description: "Connect with Slack, Notion, Zapier, and more. Build custom workflows with our comprehensive API.",
+    title: "Hight Accuracy",
+    description: "we offer hight accuracy - qubie can process complex quries because we're using reasoning model by Google.",
     icon: <Puzzle className="h-6 w-6 text-violet-400" />
   }
 ]
@@ -74,87 +74,7 @@ export function Features() {
           ))}
         </div>
         
-        {/* Feature Showcase */}
-        <motion.div 
-          className="hidden md:block mt-20 bg-card/50 dark:bg-slate-800/50 backdrop-blur-sm rounded-xl overflow-hidden border border-border dark:border-slate-700/50"
-          initial={{ opacity: 0, y: 40 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.7 }}
-          viewport={{ once: true, margin: "-100px" }}
-        >
-          <div className="grid md:grid-cols-2 gap-0">
-            <div className="p-8 md:p-12 flex flex-col justify-center">
-              <h3 className="text-2xl md:text-3xl font-bold font-space-grotesk mb-6 text-foreground dark:text-transparent dark:bg-clip-text dark:bg-gradient-to-r dark:from-white dark:to-slate-300">
-                Experience Smart Citations in Action
-              </h3>
-              <p className="text-muted-foreground dark:text-slate-400 mb-6 leading-relaxed">
-                Stop hunting for information sources. Qubie automatically highlights and cites the exact location of information in your documents, giving you confidence in AI-generated responses.
-              </p>
-              <ul className="space-y-3 mb-8">
-                {[
-                  "Pinpoint accuracy to specific pages and sections",
-                  "Hover over highlights to see original context",
-                  "Export citations with your summaries",
-                  "Full transparency for regulatory compliance"
-                ].map((item, i) => (
-                  <li key={i} className="flex items-start">
-                    <div className="h-5 w-5 rounded-full bg-primary/20 dark:bg-teal-500/20 flex items-center justify-center mr-3 mt-0.5">
-                      <Check className="h-3 w-3 text-primary dark:text-teal-400" />
-                    </div>
-                    <span className="text-muted-foreground dark:text-slate-300">{item}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-            
-            <div className="relative bg-card/50 dark:bg-slate-800/50 p-6 flex items-center justify-center">
-              <div className="relative max-w-md w-full bg-background/50 dark:bg-slate-900/50 rounded-lg p-4 shadow-xl border border-border dark:border-slate-700/50">
-                <div className="border-b border-border dark:border-slate-700/50 pb-3 mb-4">
-                  <h4 className="text-foreground dark:text-white font-medium font-space-grotesk">Financial Report Analysis</h4>
-                </div>
-                
-                <div className="space-y-4">
-                  <div className="bg-muted/50 dark:bg-slate-700/50 rounded-lg p-3">
-                    <p className="text-sm text-muted-foreground dark:text-slate-300">What were the main factors affecting our profit margin last quarter?</p>
-                  </div>
-                  
-                  <div className="bg-gradient-to-r from-primary/20 to-teal-500/20 dark:from-indigo-500/20 dark:to-teal-500/20 rounded-lg p-3">
-                    <p className="text-sm text-foreground dark:text-white">
-                      The main factors affecting profit margins were:
-                    </p>
-                    <ul className="mt-2 space-y-2 text-sm text-foreground dark:text-white">
-                      <li className="flex items-start">
-                        <span className="bg-primary/20 dark:bg-yellow-500/20 px-1 rounded mr-1">Increased raw material costs</span> 
-                        <span className="text-xs text-primary dark:text-yellow-400 ml-1">[p.14]</span>
-                      </li>
-                      <li className="flex items-start">
-                        <span className="bg-teal-500/20 px-1 rounded mr-1">New overseas tariffs in Asian markets</span>
-                        <span className="text-xs text-teal-400 ml-1">[p.27-28]</span>
-                      </li>
-                      <li className="flex items-start">
-                        <span className="bg-primary/20 dark:bg-indigo-500/20 px-1 rounded mr-1">One-time infrastructure investment</span>
-                        <span className="text-xs text-primary dark:text-indigo-400 ml-1">[p.42]</span>
-                      </li>
-                    </ul>
-                    <p className="text-sm text-foreground dark:text-white mt-2">
-                      These factors led to a temporary 3.2% decrease in overall margins, expected to recover next quarter.
-                    </p>
-                  </div>
-                  
-                  <div className="border border-border dark:border-slate-700/50 rounded-lg p-3">
-                    <div className="flex items-center gap-2 text-muted-foreground dark:text-slate-300 text-sm mb-2">
-                      <BookMarked className="h-4 w-4 text-primary dark:text-teal-400" />
-                      <span className="font-medium font-space-grotesk">Citation Preview</span>
-                    </div>
-                    <div className="bg-muted/50 dark:bg-slate-900/70 p-2 rounded text-xs text-muted-foreground dark:text-slate-400">
-                      "Raw material costs increased by 7.2% compared to the previous quarter, primarily driven by global supply chain disruptions..." <span className="text-primary dark:text-teal-400">Page 14, Q2 Financial Report</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </motion.div>
+      
       </div>
     </section>
   )

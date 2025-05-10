@@ -44,7 +44,7 @@ export function Testimonials() {
   return (
     <section className="py-24 relative bg-background">
       {/* Background gradient and pattern */}
-      <div className="absolute inset-0 bg-gradient-to-b from-background via-muted to-background dark:from-slate-950 dark:via-slate-900 dark:to-slate-950 opacity-50 z-0" />
+      <div className="absolute inset-0 bg-gradient-to-b from-background via-muted to-background dark:from-slate-950 dark:via-slate-900 dark:to-slate-950 z-0" />
       <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-border dark:via-slate-700/50 to-transparent" />
       
       {/* Geometric background pattern */}

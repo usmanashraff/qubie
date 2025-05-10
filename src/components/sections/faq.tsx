@@ -11,25 +11,26 @@ import {
 
 const faqs = [
   {
-    question: "How does Qubie handle sensitive data?",
-    answer: "Qubie employs end-to-end encryption for all documents. Your files are processed in isolated environments, and we maintain a strict zero-data retention policy. We're SOC 2 and GDPR compliant, with HIPAA compliance available for Enterprise plans. Your sensitive information never leaves your control."
+    question: "What types of documents can I upload to the platform?",
+    answer: "You can upload various document formats including PDF, Word (.doc/.docx), Excel (.xls/.xlsx), and text files (.txt)."
   },
   {
-    question: "Can I train Qubie on industry-specific jargon?",
-    answer: "Absolutely! Pro and Enterprise plans include Custom AI Personas that can be trained to understand specific industry terminology, acronyms, and technical language. You can create multiple personas (e.g., Legal Expert, Financial Analyst) to match your specific needs."
+    question: "How does the AI understand and answer my questions?",
+    answer: "Once a document is uploaded, our system extracts the text and uses the Gemini API to analyze the content. You can then ask questions in natural language, and the AI responds with relevant information based on the content of your document."
   },
   {
     question: "What file sizes and types are supported?",
     answer: "Free plans support files up to 4MB and 200 pages per document. Pro plans extend this to 32MB and 500 pages per document. We support PDFs, Word documents (.docx), Excel spreadsheets (.xlsx), PowerPoint presentations (.pptx), and 20+ other common business file formats."
   },
   {
-    question: "How accurate is the AI in understanding context?",
-    answer: "Qubie's AI uses advanced language models trained on millions of documents. It understands complex relationships, can cross-reference information across multiple documents, and provides citations for its responses. Our accuracy rates are consistently above 95% for factual retrieval tasks."
+    question: "How does your system provide more accurate answers than others?",
+    answer: "Our system uses Google Gemini 2.5 Pro, a powerful reasoning model known for its advanced capabilities in understanding and processing complex queries. This ensures higher accuracy, better context understanding, and more reliable answers compared to standard models."
   },
   {
-    question: "Can I integrate Qubie with other tools?",
-    answer: "Yes! Qubie offers integrations with popular tools like Slack, Microsoft Teams, and Notion. We also provide a comprehensive API for custom integrations. Enterprise plans include additional integration options and dedicated support for implementation."
-  }
+    question: "Can your system process images inside documents?",
+    answer: "Yes, our system is capable of detecting and understanding images embedded in documents. However, this feature is currently in the staging environment and is not yet available in the public release."
+  },
+ 
 ]
 
 export function FaqSection() {
