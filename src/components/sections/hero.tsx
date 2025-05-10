@@ -4,6 +4,7 @@ import React from "react"
 import { Button } from "@/components/ui/button"
 import { Play } from "lucide-react"
 import { motion } from "@/lib/motion"
+import Link from "next/link"
 
 export function Hero() {
   return (
@@ -42,20 +43,18 @@ export function Hero() {
             </div>
             
             <div className="flex flex-col sm:flex-row gap-4 md:gap-6">
-              <Button
+           <Link
+           href="/dashboard"
+           >
+               <Button
                 size="lg"
                 className="bg-gradient-to-r from-primary to-teal-500 hover:from-primary/90 hover:to-teal-500/90 dark:from-indigo-600 dark:to-teal-500 dark:hover:from-indigo-500 dark:hover:to-teal-400 text-primary-foreground border-0 rounded-full px-8 shadow-lg shadow-primary/20 hover:shadow-xl hover:shadow-primary/40 transition-all duration-300 transform hover:-translate-y-1"
               >
-                Start Your Free Trial →
+                Start Free Now →
               </Button>
+           </Link>
               
-              <Button
-                variant="outline"
-                size="lg"
-                className="border-muted bg-background/50 dark:border-slate-700 dark:bg-slate-900/50 backdrop-blur-sm text-foreground dark:text-slate-200 hover:bg-muted dark:hover:bg-slate-800 rounded-full px-8 flex items-center gap-2"
-              >
-                <Play className="h-4 w-4" /> Watch Demo Video
-              </Button>
+  
             </div>
           </div>
           
