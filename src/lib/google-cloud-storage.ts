@@ -1,11 +1,13 @@
 import { Storage } from '@google-cloud/storage';
-import path from 'path';
 
 const storage = new Storage({
-  keyFilename: path.join(process.cwd(), 'src/google/qubie-450415-10d171618992.json'),
-  projectId: 'qubie-450415',
+  credentials: {
+    client_email: process.env.GOOGLE_CLOUD_CLIENT_EMAIL,
+    private_key: process.env.GOOGLE_CLOUD_PRIVATE_KEY?.replace(/\\n/g, '\n'),
+  },
+  projectId: process.env.GOOGLE_CLOUD_PROJECT_ID,
 });
 
-const bucket = storage.bucket('qubie');
+const bucket = storage.bucket(process.env.GOOGLE_CLOUD_BUCKET_NAME || 'qubie');
 
 export { storage, bucket };
