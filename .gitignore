@@ -35,3 +35,5 @@ src/google/qubie-450415-18a6f10316ab.json
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+src/google/*.json
+src/google/*.json

@@ -8,7 +8,6 @@ import { Button } from '@/components/ui/button'
 import { Progress } from '@/components/ui/progress'
 import { trpc } from '@/app/_trpc/client'
 import { useRouter } from 'next/navigation'
-import { useUploadThing } from '@/lib/uploadthing'
 import { toast } from "sonner"
 import cuid from 'cuid'
 import { cn } from '@/lib/utils'
@@ -21,7 +20,6 @@ const UploadDialog = ({ isSubscribed }: { isSubscribed: boolean }) => {
   const [isDragging, setIsDragging] = useState(false)
   const [acceptedFiles, setAcceptedFiles] = useState<File[]>([])
 
-  const { startUpload } = useUploadThing(isSubscribed ? 'proPlanUploader' : 'freePlanUploader')
   const { mutate: startPolling } = trpc.getFile.useMutation({
     onSuccess: (file) => {
       console.log("✅ File linked with filegroup:", file)
@@ -50,24 +48,40 @@ const UploadDialog = ({ isSubscribed }: { isSubscribed: boolean }) => {
 
     const progressInterval = startSimulatedProgress()
     const fileGroupId = cuid()
-    const res = await startUpload(files)
 
-    if (!res || res.length === 0) {
+    try {
+      const formData = new FormData()
+      formData.append('fileGroupId', fileGroupId)
+      files.forEach(file => {
+        formData.append('files', file)
+      })
+
+      const response = await fetch('/api/upload', {
+        method: 'POST',
+        body: formData,
+      })
+
+      if (!response.ok) {
+        throw new Error('Upload failed')
+      }
+
+      const data = await response.json()
+      
+      // Start polling for each uploaded file
+      data.files.forEach((file: { key: string }) => {
+        if (file.key) startPolling({ key: file.key, fileGroupId })
+      })
+
+      clearInterval(progressInterval)
+      setUploadProgress(100)
+      router.push(`/dashboard/${fileGroupId}`)
+    } catch (error) {
       clearInterval(progressInterval)
       setIsUploading(false)
-      return toast.error("cannot upload this file", {
-        description: 'File type not supported or file too large',
+      toast.error('Upload failed', {
+        description: 'There was an error uploading your files. Please try again.',
       })
     }
-
-    for (const fileResponse of res) {
-      const key = fileResponse?.key
-      if (key) startPolling({ key, fileGroupId })
-    }
-
-    clearInterval(progressInterval)
-    setUploadProgress(100)
-    router.push(`/dashboard/${fileGroupId}`)
   }
 
   return (

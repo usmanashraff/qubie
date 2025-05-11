@@ -15,23 +15,42 @@ const nextConfig = {
       },
     ]
   },
-    images:{
-        remotePatterns: [
-            {
-              protocol: 'https',
-              hostname: '**',
-              port: '',
-              pathname: '/**',
-            },
-          ],
-    },
-    webpack: (
-      config
-    ) => {
-      config.resolve.alias.canvas = false
-      config.resolve.alias.encoding = false
-      return config
-    },
-  };
+  async headers() {
+    return [
+      {
+        source: '/:path*',
+        headers: [
+          {
+            key: 'Access-Control-Allow-Origin',
+            value: 'http://localhost:3000',
+          },
+          {
+            key: 'Access-Control-Allow-Methods',
+            value: 'GET, POST, PUT, DELETE, OPTIONS',
+          },
+          {
+            key: 'Access-Control-Allow-Headers',
+            value: 'Content-Type, Authorization',
+          },
+        ],
+      },
+    ]
+  },
+  images: {
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: '**',
+        port: '',
+        pathname: '/**',
+      },
+    ],
+  },
+  webpack: (config) => {
+    config.resolve.alias.canvas = false
+    config.resolve.alias.encoding = false
+    return config
+  },
+}
 
 export default nextConfig;

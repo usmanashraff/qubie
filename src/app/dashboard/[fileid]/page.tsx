@@ -58,7 +58,7 @@ const Page = async ({ params }: PageProps) => {
       userId: user.id,
     },
   })
-
+   console.log('Files:', files)
   // const files_urls = files.map(file => file.url)
   return (
     <div className='mt-[4rem] flex-1 justify-between flex flex-col h-[calc(100vh-3.5rem)] bg-gradient-to-b from-background via-muted to-background dark:from-slate-800 dark:to-slate-950'>

@@ -1,3 +1,5 @@
+'use client'
+
 import { useState } from 'react'
 import {
   Dialog,
@@ -9,7 +11,7 @@ import { Expand, Loader2 } from 'lucide-react'
 import SimpleBar from 'simplebar-react'
 import { Document, Page } from 'react-pdf'
 import { useResizeDetector } from 'react-resize-detector'
-import {toast} from 'sonner'
+import { toast } from 'sonner'
 
 interface PdfFullscreenProps {
   fileUrl: string
@@ -51,14 +53,14 @@ const PdfFullscreen = ({ fileUrl }: PdfFullscreenProps) => {
                 </div>
               }
               onLoadError={() => {
-                toast.error('Error loading full screen PDF',{
+                toast.error('Error loading PDF in fullscreen', {
                   description: 'Please try again later',
                 })
               }}
               onLoadSuccess={({ numPages }) =>
                 setNumPages(numPages)
               }
-              file={fileUrl}
+              file={`/api/fetch-file?url=${encodeURIComponent(fileUrl)}&fileType=pdf`}
               className='max-h-full'>
               {new Array(numPages).fill(0).map((_, i) => (
                 <Page

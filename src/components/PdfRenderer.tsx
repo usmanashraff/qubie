@@ -122,49 +122,58 @@ const PdfRenderer = ({ files }: PdfRendererProps) => {
     const type = detectFileType(files[currentPdf].name)
     setFileType(type)
     
-    if (type !== 'pdf') {
-      if (type === 'txt' || type === 'csv') { // Add CSV to text-based files
-        setLoadingText(true)
-        fetch(files[currentPdf].url)
-          .then(res => res.text())
-          .then(text => {
-            setTextContent(text)
-            setLoadingText(false)
-          })
-          .catch(() => {
-            setViewerError(true)
-            setLoadingText(false)
-          })
-      }
-      else if (type === 'xlsx') {
-        setLoadingText(true);
-        fetch(files[currentPdf].url)
-          .then(res => res.arrayBuffer())
-          .then(data => {
-            const workbook = XLSX.read(data, { type: 'array' });
-            const firstSheetName = workbook.SheetNames[0];
-            const worksheet = workbook.Sheets[firstSheetName];
-            const jsonData: (string | number)[][] = XLSX.utils.sheet_to_json(worksheet, {
-              header: 1,
-              defval: '',
-            });
-            setSpreadsheetData(jsonData);
-            setLoadingText(false);
-          })
-          .catch((error) => {
-            console.error('Error parsing XLSX:', error);
-            setViewerError(true);
-            setLoadingText(false);
-          });
-      }  
-      else {
-        // Handle other file types with Google Viewer
-        setViewerError(false)
-        setLoadingViewer(true)
-        const encodedUrl = encodeURIComponent(files[currentPdf].url)
-        setViewerUrl(`https://docs.google.com/gview?url=${encodedUrl}&embedded=true`)
-      }
-    }
+    fetch('/api/fetch-file', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ 
+        url: files[currentPdf].url,
+        fileType: type
+      }),
+    })
+      .then(res => res.json())
+      .then(data => {
+        if (data.error) {
+          throw new Error(data.error);
+        }
+        
+        if (data.type === 'text') {
+          setTextContent(data.content);
+          setLoadingText(false);
+        } 
+        else if (data.type === 'binary' && (type === 'xlsx' || type === 'xls')) {
+          const uint8Array = new Uint8Array(data.content);
+          const arrayBuffer = uint8Array.buffer;
+          const workbook = XLSX.read(arrayBuffer, { type: 'array' });
+          const firstSheetName = workbook.SheetNames[0];
+          const worksheet = workbook.Sheets[firstSheetName];
+          const jsonData = XLSX.utils.sheet_to_json(worksheet, {
+            header: 1,
+            defval: '',
+          }) as (string | number)[][];  // Type assertion to match state type
+          setSpreadsheetData(jsonData);
+          setLoadingText(false);
+        }
+        else if (data.type === 'url') {
+          if (type === 'pdf') {
+            // For PDFs, use the proxied URL
+            setViewerError(false);
+            setLoadingViewer(false);
+          } else {
+            // For other file types, use Google Viewer
+            setViewerError(false);
+            setLoadingViewer(true);
+            const encodedUrl = encodeURIComponent(data.url);
+            setViewerUrl(`https://docs.google.com/gview?url=${encodedUrl}&embedded=true`);
+          }
+        }
+      })
+      .catch((error) => {
+        console.error('Error fetching file:', error);
+        setViewerError(true);
+        setLoadingText(false);
+      });
   }, [currentPdf, files])
 
   const handlePageSubmit = ({ page }: TCustomPageValidator) => {
@@ -281,13 +290,16 @@ const PdfRenderer = ({ files }: PdfRendererProps) => {
       return (
         <Document
           loading={
-            <div className='flex justify-center '>
+            <div className='flex justify-center'>
               <Loader2 className='my-24 h-6 w-6 animate-spin' />
             </div>
           }
-          onLoadError={() => toast.error('Error loading PDF')}
+          onLoadError={() => {
+            toast.error('Error loading PDF');
+            setViewerError(true);
+          }}
           onLoadSuccess={({ numPages }) => setNumPages(numPages)}
-          file={files[currentPdf].url}
+          file={`/api/fetch-file?url=${encodeURIComponent(files[currentPdf].url)}&fileType=pdf`}
           className='max-h-full'
         >
           {isLoading && renderedScale ? (
