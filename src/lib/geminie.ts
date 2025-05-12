@@ -8,7 +8,7 @@ export const chatModel = genAI.getGenerativeModel({
   model: "gemini-2.5-pro-preview-03-25",
   generationConfig: {
     temperature: 0,
-    maxOutputTokens: 8192,
+    maxOutputTokens: 10000,
   },
 });
 
