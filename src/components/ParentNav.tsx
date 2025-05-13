@@ -33,6 +33,7 @@ export async function ParentNav() {
 
             {!user ? (
               <>
+                             <ThemeToggle />
                 <LoginLink>
                     <Button variant="ghost" size="sm">
                         Log in

@@ -1,8 +1,10 @@
 "use client"
 
-import { ArrowRight } from 'lucide-react'
 import { Button } from './ui/button'
 import { trpc } from '@/app/_trpc/client'
+import { cn } from "@/lib/utils"
+import { ChevronRight } from "lucide-react"
+
 
 const UpgradeButton = () => {
 
@@ -13,8 +15,12 @@ const UpgradeButton = () => {
   })
 
   return (
-    <Button onClick={() => createStripeSession()} className='w-full'>
-      Upgrade now <ArrowRight className='h-5 w-5 ml-1.5' />
+    <Button onClick={() => createStripeSession()} className={cn(
+                "w-full rounded-lg",
+                   "bg-gradient-to-r from-primary to-teal-500 hover:from-primary/90 hover:to-teal-500/90 dark:from-indigo-600 dark:to-teal-500 dark:hover:from-indigo-500 dark:hover:to-teal-400 text-primary-foreground"
+                  //  "bg-card hover:bg-muted dark:bg-slate-800 dark:hover:bg-slate-700 text-foreground dark:text-white"
+              )}>
+      Upgrade now <ChevronRight className="ml-1 h-4 w-4" />
     </Button>
   )
 }

@@ -4,7 +4,7 @@ import React from "react"
 import { motion } from "@/lib/motion"
 import { Check, ChevronRight } from "lucide-react"
 import { cn } from "@/lib/utils"
-import { Button } from "@/components/ui/button"
+import UpgradeButton from "../UpgradeButton"
 
 const pricingTiers = [
   {
@@ -190,16 +190,8 @@ function PricingCard({ tier, index }: { tier: typeof pricingTiers[0], index: num
           ))}
         </div>
         
-        <Button 
-          className={cn(
-            "w-full rounded-lg",
-            tier.highlight
-              ? "bg-gradient-to-r from-primary to-teal-500 hover:from-primary/90 hover:to-teal-500/90 dark:from-indigo-600 dark:to-teal-500 dark:hover:from-indigo-500 dark:hover:to-teal-400 text-primary-foreground"
-              : "bg-card hover:bg-muted dark:bg-slate-800 dark:hover:bg-slate-700 text-foreground dark:text-white"
-          )}
-        >
-          {tier.cta} <ChevronRight className="ml-1 h-4 w-4" />
-        </Button>
+     
+          <UpgradeButton /> 
       </div>
     </motion.div>
   )
