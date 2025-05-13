@@ -155,21 +155,7 @@ export function Hero() {
       </div>
       
       {/* Scroll indicator */}
-      <div className="absolute bottom-10 left-1/2 transform -translate-x-1/2">
-        <div className="w-6 h-10 rounded-full border-2 border-muted-foreground dark:border-slate-500 flex justify-center pt-2">
-          <motion.div 
-            className="w-1.5 h-1.5 rounded-full bg-primary dark:bg-teal-400"
-            animate={{
-              y: [0, 15, 0]
-            }}
-            transition={{
-              duration: 1.5,
-              repeat: Infinity,
-              ease: "easeInOut"
-            }}
-          />
-        </div>
-      </div>
+     
     </section>
   )
 }
