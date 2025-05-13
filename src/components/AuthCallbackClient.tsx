@@ -25,7 +25,7 @@ const AuthCallbackClient = () => {
   
   useEffect(() => {
     if (error?.data?.code === 'UNAUTHORIZED') {
-      router.push('/sign-in');
+      router.push('/api/auth/login');
     }
   }, [error, router]);
   

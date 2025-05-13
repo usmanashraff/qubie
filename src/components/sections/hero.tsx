@@ -44,7 +44,7 @@ export function Hero() {
             
             <div className="flex flex-col sm:flex-row gap-4 md:gap-6">
            <Link
-           href="/dashboard"
+           href="/api/auth/login"
            >
                <Button
                 size="lg"
