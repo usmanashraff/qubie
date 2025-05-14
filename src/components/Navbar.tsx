@@ -55,11 +55,11 @@ export function Navbar() {
               </Link>
             </NavigationMenuItem>
             <NavigationMenuItem>
-              {/* <Link href="/about-us" legacyBehavior passHref>
+              <Link href="/about" legacyBehavior passHref>
                 <NavigationMenuLink className={navigationMenuTriggerStyle()}>
                   About Us
                 </NavigationMenuLink>
-              </Link> */}
+              </Link>
             </NavigationMenuItem>
           </NavigationMenuList>
         </NavigationMenu>
@@ -120,6 +120,13 @@ export function Navbar() {
                   onClick={() => setIsOpen(false)}
                 >
                   FAQ
+                </Link>
+                <Link
+                  href="/about"
+                  className={cn(navigationMenuTriggerStyle(), "w-full justify-start")}
+                  onClick={() => setIsOpen(false)}
+                >
+                  About Us
                 </Link>
               </div>
             </div>
