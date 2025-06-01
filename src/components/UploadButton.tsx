@@ -139,7 +139,7 @@ const UploadDialog = ({ isSubscribed }: { isSubscribed: boolean }) => {
             {acceptedFiles.map((file, i) => (
               <div key={i} className="bg-muted/50 dark:bg-slate-800/50 px-3 py-2 rounded flex items-center gap-2 text-foreground dark:text-white">
                 <File className="h-4 w-4 text-primary dark:text-blue-400" />
-                <span className="truncate text-sm">{file.name}</span>
+                <div className="truncate max-w-[300px] text-sm inline-block">{file.name}</div>
               </div>
             ))}
           </div>

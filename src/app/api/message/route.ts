@@ -83,6 +83,7 @@ export const POST = async (req: NextRequest) => {
     `
   }).filter(Boolean).join('\n\n')
 
+  console.log('Context Blocks 😂:', contextBlocks)
   const systemMessage = {
     role: 'system' as const,
     content: `You are an intelligent document analysis assistant for a web application where users can upload and query multiple documents. You have access to:
