@@ -2,12 +2,16 @@ import { db } from '@/db'
 import { getKindeServerSession } from '@kinde-oss/kinde-auth-nextjs/server'
 import { PineconeStore } from "@langchain/pinecone";
 import { NextRequest } from 'next/server'
-import { StreamingTextResponse } from 'ai';
+import { Message as AIMessage, StreamingTextResponse } from 'ai';
 import { SendMessageValidator } from '@/lib/validators/sendMessageValidator'
 import { getPineconClient } from '@/lib/pinecone';
-import { chatModel } from '@/lib/geminie'
 import { GoogleGenerativeAIEmbeddings } from "@langchain/google-genai";
 import { TaskType } from "@google/generative-ai";
+import OpenAI from 'openai';
+
+const openai = new OpenAI({
+  apiKey: process.env.OPENAI_API_KEY,
+});
 
 export const POST = async (req: NextRequest) => {
   const body = await req.json()
@@ -65,7 +69,7 @@ export const POST = async (req: NextRequest) => {
   })
 
   const formattedPrevMessages = prevMessages.map((msg) => ({
-    role: msg.isUserMessage ? 'user' as const : 'assistant' as const,
+    role: msg.isUserMessage ? ('user' as const) : ('assistant' as const),
     content: msg.text,
   }))
 
@@ -78,85 +82,91 @@ export const POST = async (req: NextRequest) => {
       ${contexts.map((c, i) => `[Context ${i + 1}]: ${c.pageContent}`).join('\n')}
     `
   }).filter(Boolean).join('\n\n')
-  console.log("context being sending to llm 😭😭😭😭", contextBlocks)
 
-  const systemPrompt = `
-     You are a professional cross-domain document analyst. Analyze information from these files which may cover completely different subjects:
-     ${files.map(f => f.name).join(', ')}.
- 
-     Important Guidelines:
-     Don't do sumarize or do anything until user asked. if user say thank you then only say welcome.
-     0. only consider the user question for the response if conversation history does not relate to the message. 
-     1. Preserve the original context and domain-specific meaning of each document
-     2. Never merge concepts from different domains unless explicitly requested
-     3. Clearly indicate source documents using their filenames
-     4. Acknowledge conflicting perspectives between documents
-     5. if user ask something which is related to only one or two document - dont consider and specify other documents in response
-     6. most important thing is to keep the response as short as possible. don't explain exra things that user has not asked.`
- 
-     ;
- 
-     const humanPrompt = `
-     USER QUESTION: ${message}
- 
-     DOCUMENT CONTEXT:
-     ${contextBlocks}
- 
-     CONVERSATION HISTORY:
-     ${formattedPrevMessages.map(m => `- ${m.role.toUpperCase()}: ${m.content}`).join('\n')}
- 
-     RESPONSE REQUIREMENTS:
-     1. Use markdown formatting with clear section headers
-     2. If documents conflict:
-       - "Document A suggests... while Document B states..."
-       - "These perspectives differ because..."
-     3. If unrelated domains:
-       - "Regarding financial aspects..." 
-       - "In the spiritual context..."
-       - "These concepts appear unrelated but respectively..."
-       -- "at the end of respponse also give citation of all the documents[exact page no.] you have used to answer the question"`
-     ;
- 
- 
-const chatSession = chatModel.startChat({
-  history: [
-    {
-      role: "user",
-      parts: [{ text: systemPrompt }],
-    },
-  ],
-});
-
-const result = await chatSession.sendMessageStream(humanPrompt);
-
-const stream = new ReadableStream({
-  async start(controller) {
-    let fullResponse = '';
+  const systemMessage = {
+    role: 'system' as const,
+    content: `You are an intelligent document analysis assistant for a web application where users can upload and query multiple documents. You have access to:
+    1. Document context from files: ${files.map(f => f.name).join(', ')}
+    2. Previous conversation history
     
-    try {
-      // Process each chunk from the stream
-      for await (const chunk of result.stream) {
-        const textChunk = chunk.text();
-        controller.enqueue(new TextEncoder().encode(textChunk));
-        fullResponse += textChunk;
-      }
+    Response Guidelines:
+    1. If the query is related to uploaded documents:
+       - Provide answers strictly based on the given document contexts
+       - Cite specific documents and sections used in your response
+       - Maintain domain-specific terminology and meaning
+       - Highlight any conflicting information between documents
+    
+    2. If the query lacks relevant document context:
+       - Clearly state that no relevant information was found in the uploaded documents
+       - Provide a general response if appropriate
+       - Suggest uploading relevant documents if needed
+    
+    3. For conversation flow:
+       - For greetings or thank you messages, respond naturally and briefly
+       - Consider conversation history only when relevant to the current query
+       - Keep responses concise and focused on the specific question
+       
+    4. Format:
+       - Use clear markdown formatting
+       - Include document citations [DocumentName] where applicable
+       - Structure complex responses with appropriate headers`
+  }
 
-      // Save final message
-      await db.message.create({
-        data: {
-          text: fullResponse,
-          isUserMessage: false,
-          fileGroupId: groupId,
-          userId,
-        },
-      });
-    } catch (error) {
-      console.error('Stream error:', error);
-      controller.error(error);
-    } finally {
-      controller.close();
-    }
-  },
-});
-  return new StreamingTextResponse(stream)
+  const userMessage = {
+    role: 'user' as const,
+    content: `
+USER QUESTION: ${message}
+
+DOCUMENT CONTEXT:
+${contextBlocks}
+
+RESPONSE REQUIREMENTS:
+1. Use markdown formatting with clear section headers
+2. If documents conflict:
+  - "Document A suggests... while Document B states..."
+  - "These perspectives differ because..."
+3. If unrelated domains:
+  - "Regarding financial aspects..." 
+  - "In the spiritual context..."
+  - "These concepts appear unrelated but respectively..."
+  -- "at the end of respponse also give citation of all the documents[exact page no.] you have used to answer the question"
+    `
+  }
+
+  const response = await openai.chat.completions.create({
+    model: 'gpt-4.1-2025-04-14',
+    messages: [systemMessage, ...formattedPrevMessages, userMessage],
+    stream: true,
+  });
+
+  // Collect the full response while streaming
+  let fullResponse = '';
+  const encoder = new TextEncoder();
+  const stream = new ReadableStream({
+    async start(controller) {
+      try {
+        for await (const chunk of response) {
+          const text = chunk.choices[0]?.delta?.content || '';
+          fullResponse += text;
+          controller.enqueue(encoder.encode(text));
+        }
+        controller.close();
+        
+        // Save the complete message after streaming is done
+        await db.message.create({
+          data: {
+            text: fullResponse,
+            isUserMessage: false,
+            fileGroupId: groupId,
+            userId,
+          },
+        });
+      } catch (error) {
+        console.error('Error processing stream:', error);
+        controller.error(error);
+      }
+    },
+  });
+
+  return new StreamingTextResponse(stream);
 }

@@ -1,5 +1,5 @@
 import { db } from '@/db'
-import { renamingModel } from '@/lib/geminie'
+import { openai } from '@/lib/openai'
 import { getKindeServerSession } from '@kinde-oss/kinde-auth-nextjs/server'
 import { NextRequest } from 'next/server'
 import { z } from 'zod'
@@ -68,22 +68,21 @@ export const POST = async (req: NextRequest) => {
       return new Response('No files found in group', { status: 404 })
     }
 
-    // Create a prompt for Gemini
+    // Create a prompt for OpenAI
     const fileNames = files.map(f => f.name).join(', ')
     const prompt = `Generate a short but descriptive name (maximum 5-6 words) for a conversation/document group that contains the following files: ${fileNames}. The name should reflect the key theme or purpose of these documents. Return ONLY the name, nothing else.`
 
     try {
-      const chatSession = renamingModel.startChat({
-        history: [
-          {
-            role: "user",
-            parts: [{ text: prompt }],
-          },
-        ],
+      const completion = await openai.chat.completions.create({
+        messages: [{ role: 'user', content: prompt }],
+        model: 'gpt-3.5-turbo',
+        temperature: 0.3,
+        max_tokens: 20, // Keep it short since we just need a name
+        presence_penalty: 0,
+        frequency_penalty: 0,
       })
 
-      const result = await chatSession.sendMessage(prompt)
-      const generatedName = result.response.text().trim()
+      const generatedName = completion.choices[0]?.message?.content?.trim()
 
       if (!generatedName) {
         throw new Error('Failed to generate name')
