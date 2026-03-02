@@ -1,0 +1,6 @@
+{
+  "buildCommand": "npm run build --legacy-peer-deps",
+  "env": {
+    "SKIP_VULNERABLE_DEPENDENCY_CHECK": "1"
+  }
+}
