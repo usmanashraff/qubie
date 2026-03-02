@@ -4,8 +4,7 @@ import { db } from "@/db";
 import { getKindeServerSession } from "@kinde-oss/kinde-auth-nextjs/server";
 import { PDFLoader } from "@langchain/community/document_loaders/fs/pdf";
 import { getPineconClient } from "@/lib/pinecone";
-import { GoogleGenerativeAIEmbeddings } from "@langchain/google-genai";
-import { TaskType } from "@google/generative-ai";
+import { OpenAIEmbeddings } from "@langchain/openai";
 import { PineconeStore } from "@langchain/pinecone";
 import { RecursiveCharacterTextSplitter } from "langchain/text_splitter";
 import { DocxLoader } from "@langchain/community/document_loaders/fs/docx";
@@ -198,10 +197,9 @@ export async function POST(request: NextRequest) {
             // Store embeddings in Pinecone
             const pinecone = await getPineconClient();
             const pineconeIndex = pinecone.Index("qubie");
-            const embeddings = new GoogleGenerativeAIEmbeddings({
-              model: "text-embedding-004",
-              taskType: TaskType.RETRIEVAL_DOCUMENT,
-              title: file.name,
+            const embeddings = new OpenAIEmbeddings({
+              model: "text-embedding-3-small", // 1,536 dimensions
+              apiKey: process.env.OPENAI_API_KEY,
             });
 
             await PineconeStore.fromDocuments(pageLevelDocs!, embeddings, {
